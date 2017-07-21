@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>${info.title!}-${node.name}-杭州市技能鉴定工作网</title>
+<link href="_files/index/index.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="_files/index/js/index.js"></script>
+</head>
+<body>
+[#include 'template_inc_header.html'/]
+<div class="gl_warp">
+<div class="gl_main_left"><span><a style="color: #FFF;"
+	href="${ctx}/multiasses/index.html">下载中心</a></span>
+<ul>
+	[@NodeList parent='downloadcenter';list] [#list list as n]
+	<li><a href="${n.url}">${n.name}</a></li>
+	[/#list] [/@NodeList]
+</ul>
+</div>
+<div class="gl_main_right">
+<div class="universal_overview_path"><span><img
+	src="_files/index/images/newnanj_20160825_02.jpg" width="28"
+	height="40" /></span> <span class="path_rightcon">您所在的位置：[#list
+node.hierarchy as n]<a href="${n.url}" target="_blank">${n.name}</a>&gt;&gt;[/#list]正文</span>
+</div>
+<div class="print"><a href="javascript:void(0)"
+	onclick="window.print();"> 【打印】</a> |<a href="javascript:void(0)"
+	onclick="window.close();"> 【关闭】</a></div>
+<div class=" zhengwen">
+<table width="780" border="0">
+	<tr>
+		<td>
+		<h2>${info.title}</h2>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<h3>${info.subtitle!}</h3>
+		</td>
+	</tr>
+	<tr>
+		<td>${text}</td>
+	</tr>
+</table>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>
+

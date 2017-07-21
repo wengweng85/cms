@@ -1,0 +1,4566 @@
+﻿
+CREATE TABLE qrtz_job_details
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    JOB_NAME  VARCHAR2(200) NOT NULL,
+    JOB_GROUP VARCHAR2(200) NOT NULL,
+    DESCRIPTION VARCHAR2(250) NULL,
+    JOB_CLASS_NAME   VARCHAR2(250) NOT NULL, 
+    IS_DURABLE VARCHAR2(1) NOT NULL,
+    IS_NONCONCURRENT VARCHAR2(1) NOT NULL,
+    IS_UPDATE_DATA VARCHAR2(1) NOT NULL,
+    REQUESTS_RECOVERY VARCHAR2(1) NOT NULL,
+    JOB_DATA BLOB NULL,
+    CONSTRAINT QRTZ_JOB_DETAILS_PK PRIMARY KEY (SCHED_NAME,JOB_NAME,JOB_GROUP)
+);
+CREATE TABLE qrtz_triggers
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    JOB_NAME  VARCHAR2(200) NOT NULL, 
+    JOB_GROUP VARCHAR2(200) NOT NULL,
+    DESCRIPTION VARCHAR2(250) NULL,
+    NEXT_FIRE_TIME NUMBER(13) NULL,
+    PREV_FIRE_TIME NUMBER(13) NULL,
+    PRIORITY NUMBER(13) NULL,
+    TRIGGER_STATE VARCHAR2(16) NOT NULL,
+    TRIGGER_TYPE VARCHAR2(8) NOT NULL,
+    START_TIME NUMBER(13) NOT NULL,
+    END_TIME NUMBER(13) NULL,
+    CALENDAR_NAME VARCHAR2(200) NULL,
+    MISFIRE_INSTR NUMBER(2) NULL,
+    JOB_DATA BLOB NULL,
+    CONSTRAINT QRTZ_TRIGGERS_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
+    CONSTRAINT QRTZ_TRIGGER_TO_JOBS_FK FOREIGN KEY (SCHED_NAME,JOB_NAME,JOB_GROUP) 
+      REFERENCES QRTZ_JOB_DETAILS(SCHED_NAME,JOB_NAME,JOB_GROUP) 
+);
+CREATE TABLE qrtz_simple_triggers
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    REPEAT_COUNT NUMBER(7) NOT NULL,
+    REPEAT_INTERVAL NUMBER(12) NOT NULL,
+    TIMES_TRIGGERED NUMBER(10) NOT NULL,
+    CONSTRAINT QRTZ_SIMPLE_TRIG_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
+    CONSTRAINT QRTZ_SIMPLE_TRIG_TO_TRIG_FK FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) 
+  REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+);
+CREATE TABLE qrtz_cron_triggers
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    CRON_EXPRESSION VARCHAR2(120) NOT NULL,
+    TIME_ZONE_ID VARCHAR2(80),
+    CONSTRAINT QRTZ_CRON_TRIG_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
+    CONSTRAINT QRTZ_CRON_TRIG_TO_TRIG_FK FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) 
+      REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+);
+CREATE TABLE qrtz_simprop_triggers
+  (          
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    STR_PROP_1 VARCHAR2(512) NULL,
+    STR_PROP_2 VARCHAR2(512) NULL,
+    STR_PROP_3 VARCHAR2(512) NULL,
+    INT_PROP_1 NUMBER(10) NULL,
+    INT_PROP_2 NUMBER(10) NULL,
+    LONG_PROP_1 NUMBER(13) NULL,
+    LONG_PROP_2 NUMBER(13) NULL,
+    DEC_PROP_1 NUMERIC(13,4) NULL,
+    DEC_PROP_2 NUMERIC(13,4) NULL,
+    BOOL_PROP_1 VARCHAR2(1) NULL,
+    BOOL_PROP_2 VARCHAR2(1) NULL,
+    CONSTRAINT QRTZ_SIMPROP_TRIG_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
+    CONSTRAINT QRTZ_SIMPROP_TRIG_TO_TRIG_FK FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) 
+      REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+);
+CREATE TABLE qrtz_blob_triggers
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    BLOB_DATA BLOB NULL,
+    CONSTRAINT QRTZ_BLOB_TRIG_PK PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),
+    CONSTRAINT QRTZ_BLOB_TRIG_TO_TRIG_FK FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) 
+        REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)
+);
+CREATE TABLE qrtz_calendars
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    CALENDAR_NAME  VARCHAR2(200) NOT NULL, 
+    CALENDAR BLOB NOT NULL,
+    CONSTRAINT QRTZ_CALENDARS_PK PRIMARY KEY (SCHED_NAME,CALENDAR_NAME)
+);
+CREATE TABLE qrtz_paused_trigger_grps
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    TRIGGER_GROUP  VARCHAR2(200) NOT NULL, 
+    CONSTRAINT QRTZ_PAUSED_TRIG_GRPS_PK PRIMARY KEY (SCHED_NAME,TRIGGER_GROUP)
+);
+CREATE TABLE qrtz_fired_triggers 
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    ENTRY_ID VARCHAR2(95) NOT NULL,
+    TRIGGER_NAME VARCHAR2(200) NOT NULL,
+    TRIGGER_GROUP VARCHAR2(200) NOT NULL,
+    INSTANCE_NAME VARCHAR2(200) NOT NULL,
+    FIRED_TIME NUMBER(13) NOT NULL,
+    PRIORITY NUMBER(13) NOT NULL,
+    STATE VARCHAR2(16) NOT NULL,
+    JOB_NAME VARCHAR2(200) NULL,
+    JOB_GROUP VARCHAR2(200) NULL,
+    IS_NONCONCURRENT VARCHAR2(1) NULL,
+    REQUESTS_RECOVERY VARCHAR2(1) NULL,
+    CONSTRAINT QRTZ_FIRED_TRIGGER_PK PRIMARY KEY (SCHED_NAME,ENTRY_ID)
+);
+CREATE TABLE qrtz_scheduler_state 
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    INSTANCE_NAME VARCHAR2(200) NOT NULL,
+    LAST_CHECKIN_TIME NUMBER(13) NOT NULL,
+    CHECKIN_INTERVAL NUMBER(13) NOT NULL,
+    CONSTRAINT QRTZ_SCHEDULER_STATE_PK PRIMARY KEY (SCHED_NAME,INSTANCE_NAME)
+);
+CREATE TABLE qrtz_locks
+  (
+    SCHED_NAME VARCHAR2(120) NOT NULL,
+    LOCK_NAME  VARCHAR2(40) NOT NULL, 
+    CONSTRAINT QRTZ_LOCKS_PK PRIMARY KEY (SCHED_NAME,LOCK_NAME)
+);
+
+create index idx_qrtz_j_req_recovery on qrtz_job_details(SCHED_NAME,REQUESTS_RECOVERY);
+create index idx_qrtz_j_grp on qrtz_job_details(SCHED_NAME,JOB_GROUP);
+
+create index idx_qrtz_t_j on qrtz_triggers(SCHED_NAME,JOB_NAME,JOB_GROUP);
+create index idx_qrtz_t_jg on qrtz_triggers(SCHED_NAME,JOB_GROUP);
+create index idx_qrtz_t_c on qrtz_triggers(SCHED_NAME,CALENDAR_NAME);
+create index idx_qrtz_t_g on qrtz_triggers(SCHED_NAME,TRIGGER_GROUP);
+create index idx_qrtz_t_state on qrtz_triggers(SCHED_NAME,TRIGGER_STATE);
+create index idx_qrtz_t_n_state on qrtz_triggers(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP,TRIGGER_STATE);
+create index idx_qrtz_t_n_g_state on qrtz_triggers(SCHED_NAME,TRIGGER_GROUP,TRIGGER_STATE);
+create index idx_qrtz_t_next_fire_time on qrtz_triggers(SCHED_NAME,NEXT_FIRE_TIME);
+create index idx_qrtz_t_nft_st on qrtz_triggers(SCHED_NAME,TRIGGER_STATE,NEXT_FIRE_TIME);
+create index idx_qrtz_t_nft_misfire on qrtz_triggers(SCHED_NAME,MISFIRE_INSTR,NEXT_FIRE_TIME);
+create index idx_qrtz_t_nft_st_misfire on qrtz_triggers(SCHED_NAME,MISFIRE_INSTR,NEXT_FIRE_TIME,TRIGGER_STATE);
+create index idx_qrtz_t_nft_st_misfire_grp on qrtz_triggers(SCHED_NAME,MISFIRE_INSTR,NEXT_FIRE_TIME,TRIGGER_GROUP,TRIGGER_STATE);
+
+create index idx_qrtz_ft_trig_inst_name on qrtz_fired_triggers(SCHED_NAME,INSTANCE_NAME);
+create index idx_qrtz_ft_inst_job_req_rcvry on qrtz_fired_triggers(SCHED_NAME,INSTANCE_NAME,REQUESTS_RECOVERY);
+create index idx_qrtz_ft_j_g on qrtz_fired_triggers(SCHED_NAME,JOB_NAME,JOB_GROUP);
+create index idx_qrtz_ft_jg on qrtz_fired_triggers(SCHED_NAME,JOB_GROUP);
+create index idx_qrtz_ft_t_g on qrtz_fired_triggers(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP);
+create index idx_qrtz_ft_tg on qrtz_fired_triggers(SCHED_NAME,TRIGGER_GROUP);
+
+
+/*==============================================================*/
+/* Table: cms_ad                                                */
+/*==============================================================*/
+create table cms_ad  (
+   f_ad_id              number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_adslot_id          number(10)                      not null,
+   f_name               nvarchar2(150)                  not null,
+   f_begin_date         date,
+   f_end_date           date,
+   f_url                nvarchar2(255),
+   f_text               nvarchar2(255),
+   f_script             clob,
+   f_image              nvarchar2(255),
+   f_flash              nvarchar2(255),
+   f_seq                number(10)                     default 1 not null,
+   constraint pk_cms_ad primary key (f_ad_id)
+);
+
+comment on table cms_ad is
+'广告表';
+
+comment on column cms_ad.f_name is
+'名称';
+
+comment on column cms_ad.f_begin_date is
+'开始时间';
+
+comment on column cms_ad.f_end_date is
+'结束时间';
+
+comment on column cms_ad.f_url is
+'广告url';
+
+comment on column cms_ad.f_text is
+'文字';
+
+comment on column cms_ad.f_script is
+'代码';
+
+comment on column cms_ad.f_image is
+'图片';
+
+comment on column cms_ad.f_flash is
+'flash';
+
+comment on column cms_ad.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_ad_adslot_fk                                      */
+/*==============================================================*/
+create index cms_ad_adslot_fk on cms_ad (
+   f_adslot_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_ad_site_fk                                        */
+/*==============================================================*/
+create index cms_ad_site_fk on cms_ad (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_ad_slot                                           */
+/*==============================================================*/
+create table cms_ad_slot  (
+   f_adslot_id          number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_number             nvarchar2(100),
+   f_description        nvarchar2(255),
+   f_type               number(10)                      not null,
+   f_template           nvarchar2(255)                  not null,
+   f_width              number(10)                      not null,
+   f_height             number(10)                      not null,
+   constraint pk_cms_ad_slot primary key (f_adslot_id)
+);
+
+comment on table cms_ad_slot is
+'广告版位表';
+
+comment on column cms_ad_slot.f_name is
+'名称';
+
+comment on column cms_ad_slot.f_number is
+'编码';
+
+comment on column cms_ad_slot.f_description is
+'描述';
+
+comment on column cms_ad_slot.f_type is
+'类型(1:文字,2:图片,3:FLASH,4:代码)';
+
+comment on column cms_ad_slot.f_template is
+'模板';
+
+comment on column cms_ad_slot.f_width is
+'宽度';
+
+comment on column cms_ad_slot.f_height is
+'高度';
+
+/*==============================================================*/
+/* Index: cms_adslot_site_fk                                    */
+/*==============================================================*/
+create index cms_adslot_site_fk on cms_ad_slot (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_attachment                                        */
+/*==============================================================*/
+create table cms_attachment  (
+   f_attachment_id      number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_name               nvarchar2(150)                  not null,
+   f_length             number(20),
+   f_ip                 nvarchar2(100),
+   f_time               date                            not null,
+   constraint pk_cms_attachment primary key (f_attachment_id)
+);
+
+comment on table cms_attachment is
+'附件表';
+
+comment on column cms_attachment.f_name is
+'文件名';
+
+comment on column cms_attachment.f_length is
+'文件长度';
+
+comment on column cms_attachment.f_ip is
+'IP';
+
+comment on column cms_attachment.f_time is
+'时间';
+
+/*==============================================================*/
+/* Index: cms_attachement_site_fk                               */
+/*==============================================================*/
+create index cms_attachement_site_fk on cms_attachment (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_attachment_user_fk                                */
+/*==============================================================*/
+create index cms_attachment_user_fk on cms_attachment (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_attachment_ref                                    */
+/*==============================================================*/
+create table cms_attachment_ref  (
+   f_attachementref_id  number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_attachment_id      number(10)                      not null,
+   f_ftype              nvarchar2(100)                  not null,
+   f_fid                number(10)                      not null,
+   constraint pk_cms_attachment_ref primary key (f_attachementref_id)
+);
+
+comment on column cms_attachment_ref.f_ftype is
+'外表标识';
+
+comment on column cms_attachment_ref.f_fid is
+'外表ID';
+
+/*==============================================================*/
+/* Index: cms_attachmentref_attach_fk                           */
+/*==============================================================*/
+create index cms_attachmentref_attach_fk on cms_attachment_ref (
+   f_attachment_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_attachmentref_site_fk                             */
+/*==============================================================*/
+create index cms_attachmentref_site_fk on cms_attachment_ref (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_attribute                                         */
+/*==============================================================*/
+create table cms_attribute  (
+   f_attribute_id       number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_number             nvarchar2(20)                   not null,
+   f_name               nvarchar2(50)                   not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   f_is_with_image      nchar(1)                       default '0' not null,
+   f_is_scale           nchar(1)                       default '0' not null,
+   f_is_exact           nchar(1)                       default '0' not null,
+   f_is_watermark       nchar(1)                       default '0' not null,
+   f_image_width        number(10),
+   f_image_height       number(10),
+   constraint pk_cms_attribute primary key (f_attribute_id)
+);
+
+comment on table cms_attribute is
+'属性表';
+
+comment on column cms_attribute.f_number is
+'代码';
+
+comment on column cms_attribute.f_name is
+'名称';
+
+comment on column cms_attribute.f_seq is
+'排序';
+
+comment on column cms_attribute.f_is_with_image is
+'是否包含图片';
+
+comment on column cms_attribute.f_is_scale is
+'是否图片压缩';
+
+comment on column cms_attribute.f_is_exact is
+'是否图片拉伸';
+
+comment on column cms_attribute.f_is_watermark is
+'是否图片水印';
+
+comment on column cms_attribute.f_image_width is
+'图片宽度';
+
+comment on column cms_attribute.f_image_height is
+'图片高度';
+
+/*==============================================================*/
+/* Index: cms_attribute_site_fk                                 */
+/*==============================================================*/
+create index cms_attribute_site_fk on cms_attribute (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_collect                                           */
+/*==============================================================*/
+create table cms_collect  (
+   f_collect_id         number(10)                      not null,
+   f_node_id            number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_charset            nvarchar2(100)                 default 'UTF-8' not null,
+   f_user_agent         nvarchar2(255)                 default 'Mozilla/5.0' not null,
+   f_interval_min       number(10)                     default 0 not null,
+   f_interval_max       number(10)                     default 0 not null,
+   f_list_pattern       nvarchar2(2000)                 not null,
+   f_list_next_pattern  nvarchar2(255),
+   f_is_list_next_reg   nchar(1)                       default '0' not null,
+   f_item_area_pattern  nvarchar2(255),
+   f_is_item_area_reg   nchar(1)                       default '0' not null,
+   f_item_pattern       nvarchar2(255)                  not null,
+   f_is_item_reg        nchar(1)                       default '0' not null,
+   f_block_area_pattern nvarchar2(255),
+   f_is_block_area_reg  nchar(1)                       default '0' not null,
+   f_block_pattern      nvarchar2(255),
+   f_is_block_reg       nchar(1)                       default '0' not null,
+   f_page_begin         number(10)                     default 2 not null,
+   f_page_end           number(10)                     default 10 not null,
+   f_is_desc            nchar(1)                       default '1' not null,
+   f_is_submit          nchar(1)                       default '0' not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_collect primary key (f_collect_id)
+);
+
+comment on table cms_collect is
+'采集表';
+
+comment on column cms_collect.f_name is
+'名称';
+
+comment on column cms_collect.f_charset is
+'字符集';
+
+comment on column cms_collect.f_user_agent is
+'用户代理';
+
+comment on column cms_collect.f_interval_min is
+'最小间隔时间';
+
+comment on column cms_collect.f_interval_max is
+'最大间隔时间';
+
+comment on column cms_collect.f_list_pattern is
+'列表地址';
+
+comment on column cms_collect.f_list_next_pattern is
+'下一页列表地址';
+
+comment on column cms_collect.f_is_list_next_reg is
+'下一页列表地址是否正则';
+
+comment on column cms_collect.f_item_area_pattern is
+'文章地址区域';
+
+comment on column cms_collect.f_is_item_area_reg is
+'文章地址区域是否正则';
+
+comment on column cms_collect.f_item_pattern is
+'文章地址';
+
+comment on column cms_collect.f_is_item_reg is
+'文章地址是否正则';
+
+comment on column cms_collect.f_block_area_pattern is
+'文章块区域';
+
+comment on column cms_collect.f_is_block_area_reg is
+'文章快区域是否正则';
+
+comment on column cms_collect.f_block_pattern is
+'文章块';
+
+comment on column cms_collect.f_is_block_reg is
+'文章块是否正则';
+
+comment on column cms_collect.f_page_begin is
+'起始序号';
+
+comment on column cms_collect.f_page_end is
+'结束序号';
+
+comment on column cms_collect.f_is_desc is
+'是否倒序';
+
+comment on column cms_collect.f_is_submit is
+'是否提交';
+
+comment on column cms_collect.f_status is
+'状态(0:就绪,1:运行中,2:暂停)';
+
+/*==============================================================*/
+/* Index: cms_collect_site_fk                                   */
+/*==============================================================*/
+create index cms_collect_site_fk on cms_collect (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_collect_user_fk                                   */
+/*==============================================================*/
+create index cms_collect_user_fk on cms_collect (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_collect_node_fk                                   */
+/*==============================================================*/
+create index cms_collect_node_fk on cms_collect (
+   f_node_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_collect_field                                     */
+/*==============================================================*/
+create table cms_collect_field  (
+   f_collectfield_id    number(10)                      not null,
+   f_collect_id         number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_code               nvarchar2(100)                  not null,
+   f_type               number(10)                     default 1 not null,
+   f_source_type        number(10)                     default 1 not null,
+   f_source_url         nvarchar2(255),
+   f_source_text        nvarchar2(255),
+   f_data_area_pattern  nvarchar2(255),
+   f_is_data_area_reg   nchar(1)                       default '0' not null,
+   f_data_pattern       nvarchar2(255),
+   f_is_data_reg        nchar(1)                       default '0' not null,
+   f_date_format        nvarchar2(255),
+   f_download_type      nvarchar2(20),
+   f_image_param        nvarchar2(255),
+   f_filter             nvarchar2(2000),
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_collect_field primary key (f_collectfield_id)
+);
+
+comment on table cms_collect_field is
+'采集字段表';
+
+comment on column cms_collect_field.f_name is
+'名称';
+
+comment on column cms_collect_field.f_code is
+'代码';
+
+comment on column cms_collect_field.f_type is
+'类型(1;系统字段,2:custom字段,3:clob字段)';
+
+comment on column cms_collect_field.f_source_type is
+'来源(1:详细页,2:列表页,3:固定值,4:URL)';
+
+comment on column cms_collect_field.f_source_url is
+'来源URL';
+
+comment on column cms_collect_field.f_source_text is
+'来源文本';
+
+comment on column cms_collect_field.f_data_area_pattern is
+'数据区域';
+
+comment on column cms_collect_field.f_is_data_area_reg is
+'数据区域是否正则';
+
+comment on column cms_collect_field.f_data_pattern is
+'匹配规则';
+
+comment on column cms_collect_field.f_is_data_reg is
+'匹配规则是否正则';
+
+comment on column cms_collect_field.f_date_format is
+'日期格式';
+
+comment on column cms_collect_field.f_download_type is
+'下载类型(为空不下载)';
+
+comment on column cms_collect_field.f_image_param is
+'图片参数';
+
+comment on column cms_collect_field.f_filter is
+'过滤规则';
+
+comment on column cms_collect_field.f_seq is
+'排列顺序';
+
+/*==============================================================*/
+/* Index: cms_collectfield_collect_fk                           */
+/*==============================================================*/
+create index cms_collectfield_collect_fk on cms_collect_field (
+   f_collect_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_collectfield_site_fk                              */
+/*==============================================================*/
+create index cms_collectfield_site_fk on cms_collect_field (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_collect_log                                       */
+/*==============================================================*/
+create table cms_collect_log  (
+   f_collectlog_id      number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_url                nvarchar2(255)                  not null,
+   f_title              nvarchar2(255),
+   f_message            nvarchar2(255),
+   f_time               date                            not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_collect_log primary key (f_collectlog_id)
+);
+
+comment on table cms_collect_log is
+'采集日志表';
+
+comment on column cms_collect_log.f_url is
+'采集地址';
+
+comment on column cms_collect_log.f_title is
+'标题';
+
+comment on column cms_collect_log.f_message is
+'消息';
+
+comment on column cms_collect_log.f_time is
+'时间';
+
+comment on column cms_collect_log.f_status is
+'状态(0:成功,1:失败)';
+
+/*==============================================================*/
+/* Index: cms_collectlog_site_fk                                */
+/*==============================================================*/
+create index cms_collectlog_site_fk on cms_collect_log (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_comment                                           */
+/*==============================================================*/
+create table cms_comment  (
+   f_comment_id         number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_creator_id         number(10)                      not null,
+   f_auditor_id         number(10),
+   f_ftype              nvarchar2(50)                   not null,
+   f_fid                number(10)                      not null,
+   f_creation_date      date                            not null,
+   f_audit_date         date,
+   f_ip                 nvarchar2(100)                 default '127.0.0.1' not null,
+   f_score              number(10)                     default 0 not null,
+   f_status             number(10)                     default 0 not null,
+   f_text               clob,
+   constraint pk_cms_comment primary key (f_comment_id)
+);
+
+comment on table cms_comment is
+'评论表';
+
+comment on column cms_comment.f_ftype is
+'外表标识';
+
+comment on column cms_comment.f_fid is
+'外表ID';
+
+comment on column cms_comment.f_creation_date is
+'评论时间';
+
+comment on column cms_comment.f_audit_date is
+'审核时间';
+
+comment on column cms_comment.f_ip is
+'IP地址';
+
+comment on column cms_comment.f_score is
+'得分';
+
+comment on column cms_comment.f_status is
+'0:未审核;1:已审核;2:推荐;3:屏蔽';
+
+/*==============================================================*/
+/* Index: cms_comment_auditor_fk                                */
+/*==============================================================*/
+create index cms_comment_auditor_fk on cms_comment (
+   f_auditor_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_comment_site_fk                                   */
+/*==============================================================*/
+create index cms_comment_site_fk on cms_comment (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_comment_creator_fk                                */
+/*==============================================================*/
+create index cms_comment_creator_fk on cms_comment (
+   f_creator_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_friendlink                                        */
+/*==============================================================*/
+create table cms_friendlink  (
+   f_friendlink_id      number(10)                      not null,
+   f_friendlinktype_id  number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_url                nvarchar2(255)                  not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   f_logo               nvarchar2(255),
+   f_description        nvarchar2(255),
+   f_email              nvarchar2(100),
+   f_is_with_logo       nchar(1)                       default '0' not null,
+   f_is_recommend       nchar(1)                       default '0' not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_friendlink primary key (f_friendlink_id)
+);
+
+comment on table cms_friendlink is
+'友情链接表';
+
+comment on column cms_friendlink.f_name is
+'网站名称';
+
+comment on column cms_friendlink.f_url is
+'网站地址';
+
+comment on column cms_friendlink.f_seq is
+'排序';
+
+comment on column cms_friendlink.f_logo is
+'网站Logo';
+
+comment on column cms_friendlink.f_description is
+'网站描述';
+
+comment on column cms_friendlink.f_email is
+'站长Email';
+
+comment on column cms_friendlink.f_is_with_logo is
+'是否带Logo';
+
+comment on column cms_friendlink.f_is_recommend is
+'是否推荐';
+
+comment on column cms_friendlink.f_status is
+'状态(0:已审核,1:未审核)';
+
+/*==============================================================*/
+/* Index: cms_friendlink_site_fk                                */
+/*==============================================================*/
+create index cms_friendlink_site_fk on cms_friendlink (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_friendlink_fltype_fk                              */
+/*==============================================================*/
+create index cms_friendlink_fltype_fk on cms_friendlink (
+   f_friendlinktype_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_friendlink_type                                   */
+/*==============================================================*/
+create table cms_friendlink_type  (
+   f_friendlinktype_id  number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_number             nvarchar2(100),
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_friendlink_type primary key (f_friendlinktype_id)
+);
+
+comment on table cms_friendlink_type is
+'友情链接类型表';
+
+comment on column cms_friendlink_type.f_name is
+'名称';
+
+comment on column cms_friendlink_type.f_number is
+'编码';
+
+comment on column cms_friendlink_type.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_friendlinktype_site_fk                            */
+/*==============================================================*/
+create index cms_friendlinktype_site_fk on cms_friendlink_type (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_global                                            */
+/*==============================================================*/
+create table cms_global  (
+   f_global_id          number(10)                      not null,
+   f_protocol           nvarchar2(50)                  default 'http' not null,
+   f_port               number(10),
+   f_context_path       nvarchar2(255),
+   f_is_with_domain     nchar(1)                       default '0' not null,
+   f_uploads_publishpoint_id number(10),
+   f_version            nvarchar2(50)                   not null,
+   constraint pk_cms_global primary key (f_global_id)
+);
+
+comment on table cms_global is
+'全局表';
+
+comment on column cms_global.f_protocol is
+'协议';
+
+comment on column cms_global.f_port is
+'服务端口号';
+
+comment on column cms_global.f_context_path is
+'上下文路径';
+
+comment on column cms_global.f_is_with_domain is
+'是否URL包含域名';
+
+comment on column cms_global.f_uploads_publishpoint_id is
+'附件发布点';
+
+comment on column cms_global.f_version is
+'jspxcms版本号';
+
+/*==============================================================*/
+/* Table: cms_global_clob                                       */
+/*==============================================================*/
+create table cms_global_clob  (
+   f_global_id          number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              clob
+);
+
+comment on table cms_global_clob is
+'全局大字段表';
+
+comment on column cms_global_clob.f_key is
+'键';
+
+comment on column cms_global_clob.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_globalclob_global_fk                              */
+/*==============================================================*/
+create index cms_globalclob_global_fk on cms_global_clob (
+   f_global_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_global_custom                                     */
+/*==============================================================*/
+create table cms_global_custom  (
+   f_global_id          number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              nvarchar2(2000)
+);
+
+comment on table cms_global_custom is
+'全局自定义表';
+
+comment on column cms_global_custom.f_key is
+'键';
+
+comment on column cms_global_custom.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_globcust_global_fk                                */
+/*==============================================================*/
+create index cms_globcust_global_fk on cms_global_custom (
+   f_global_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_guestbook                                         */
+/*==============================================================*/
+create table cms_guestbook  (
+   f_guestbook_id       number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_guestbooktype_id   number(10)                      not null,
+   f_creator_id         number(10)                      not null,
+   f_replyer_id         number(10),
+   f_title              nvarchar2(150),
+   f_text               clob,
+   f_creation_date      date                            not null,
+   f_creation_ip        nvarchar2(100)                  not null,
+   f_reply_text         clob,
+   f_reply_date         date,
+   f_reply_ip           nvarchar2(100),
+   f_is_reply           nchar(1)                       default '0' not null,
+   f_is_recommend       nchar(1)                       default '0' not null,
+   f_status             number(10)                     default 0 not null,
+   f_username           nvarchar2(100),
+   f_gender             nchar(1),
+   f_phone              nvarchar2(100),
+   f_mobile             nvarchar2(100),
+   f_qq                 nvarchar2(100),
+   f_email              nvarchar2(100),
+   constraint pk_cms_guestbook primary key (f_guestbook_id)
+);
+
+comment on table cms_guestbook is
+'留言板表';
+
+comment on column cms_guestbook.f_title is
+'留言标题';
+
+comment on column cms_guestbook.f_text is
+'留言内容';
+
+comment on column cms_guestbook.f_creation_date is
+'留言日期';
+
+comment on column cms_guestbook.f_creation_ip is
+'留言IP';
+
+comment on column cms_guestbook.f_reply_text is
+'回复内容';
+
+comment on column cms_guestbook.f_reply_date is
+'回复日期';
+
+comment on column cms_guestbook.f_reply_ip is
+'回复IP';
+
+comment on column cms_guestbook.f_is_reply is
+'是否回复';
+
+comment on column cms_guestbook.f_is_recommend is
+'是否推荐';
+
+comment on column cms_guestbook.f_status is
+'状态(0:已审核,1:未审核,2:屏蔽)';
+
+comment on column cms_guestbook.f_username is
+'用户名';
+
+comment on column cms_guestbook.f_gender is
+'性别';
+
+comment on column cms_guestbook.f_phone is
+'电话';
+
+comment on column cms_guestbook.f_mobile is
+'手机';
+
+comment on column cms_guestbook.f_qq is
+'QQ号码';
+
+comment on column cms_guestbook.f_email is
+'电子邮箱';
+
+/*==============================================================*/
+/* Index: cms_guestbook_guestbooktype_fk                        */
+/*==============================================================*/
+create index cms_guestbook_guestbooktype_fk on cms_guestbook (
+   f_guestbooktype_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_guestbook_site_fk                                 */
+/*==============================================================*/
+create index cms_guestbook_site_fk on cms_guestbook (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_guestbook_creator_fk                              */
+/*==============================================================*/
+create index cms_guestbook_creator_fk on cms_guestbook (
+   f_creator_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_guestbook_replyer_fk                              */
+/*==============================================================*/
+create index cms_guestbook_replyer_fk on cms_guestbook (
+   f_replyer_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_guestbook_type                                    */
+/*==============================================================*/
+create table cms_guestbook_type  (
+   f_guestbooktype_id   number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_number             nvarchar2(100),
+   f_seq                number(10)                     default 2147483647 not null,
+   f_description        nvarchar2(255),
+   constraint pk_cms_guestbook_type primary key (f_guestbooktype_id)
+);
+
+comment on table cms_guestbook_type is
+'留言板类型表';
+
+comment on column cms_guestbook_type.f_name is
+'名称';
+
+comment on column cms_guestbook_type.f_number is
+'编码';
+
+comment on column cms_guestbook_type.f_seq is
+'排序';
+
+comment on column cms_guestbook_type.f_description is
+'描述';
+
+/*==============================================================*/
+/* Index: cms_guestbooktype_site_fk                             */
+/*==============================================================*/
+create index cms_guestbooktype_site_fk on cms_guestbook_type (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info                                              */
+/*==============================================================*/
+create table cms_info  (
+   f_info_id            number(10)                      not null,
+   f_org_id             number(10)                      not null,
+   f_creator_id         number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_node_id            number(10)                      not null,
+   f_publish_date       date                            not null,
+   f_off_date           date,
+   f_priority           number(3)                      default 0 not null,
+   f_is_with_image      nchar(1)                       default '0' not null,
+   f_views              number(10)                     default 0 not null,
+   f_downloads          number(10)                     default 0 not null,
+   f_comments           number(10)                     default 0 not null,
+   f_diggs              number(10)                     default 0 not null,
+   f_score              number(10)                     default 0 not null,
+   f_status             nchar(1)                       default 'A' not null,
+   f_p1                 number(3),
+   f_p2                 number(3),
+   f_p3                 number(3),
+   f_p4                 number(3),
+   f_p5                 number(3),
+   f_p6                 number(3),
+   f_html_status        nchar(1)                       default '0' not null,
+   constraint pk_cms_info primary key (f_info_id)
+);
+
+comment on table cms_info is
+'文档表';
+
+comment on column cms_info.f_publish_date is
+'发布日期';
+
+comment on column cms_info.f_off_date is
+'关闭日期';
+
+comment on column cms_info.f_priority is
+'优先级';
+
+comment on column cms_info.f_is_with_image is
+'是否包含图片';
+
+comment on column cms_info.f_views is
+'浏览总数';
+
+comment on column cms_info.f_downloads is
+'下载总数';
+
+comment on column cms_info.f_comments is
+'评论总数';
+
+comment on column cms_info.f_diggs is
+'顶';
+
+comment on column cms_info.f_score is
+'得分';
+
+comment on column cms_info.f_status is
+'状态(0:发起者,1-9:审核中,A:已发布,B:草稿,C:投稿,D:退稿,E:采集,F:待发布,G:已过期,X:回收站,Z:归档)';
+
+comment on column cms_info.f_p1 is
+'自定义1';
+
+comment on column cms_info.f_p2 is
+'自定义2';
+
+comment on column cms_info.f_p3 is
+'自定义3';
+
+comment on column cms_info.f_p4 is
+'自定义4';
+
+comment on column cms_info.f_p5 is
+'自定义5';
+
+comment on column cms_info.f_p6 is
+'自定义6';
+
+comment on column cms_info.f_html_status is
+'HTML状态(0:未开启,1:待生成,2:待更新,3:已生成)';
+
+/*==============================================================*/
+/* Index: cms_info_node_fk                                      */
+/*==============================================================*/
+create index cms_info_node_fk on cms_info (
+   f_node_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_info_user_creator_fk                              */
+/*==============================================================*/
+create index cms_info_user_creator_fk on cms_info (
+   f_creator_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_info_site_fk                                      */
+/*==============================================================*/
+create index cms_info_site_fk on cms_info (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_info_org_fk                                       */
+/*==============================================================*/
+create index cms_info_org_fk on cms_info (
+   f_org_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_attribute                                    */
+/*==============================================================*/
+create table cms_info_attribute  (
+   f_infoattr_id        number(10)                      not null,
+   f_info_id            number(10)                      not null,
+   f_attribute_id       number(10)                      not null,
+   f_image              nvarchar2(255),
+   constraint pk_cms_info_attribute primary key (f_infoattr_id)
+);
+
+comment on table cms_info_attribute is
+'文档与属性关联表';
+
+comment on column cms_info_attribute.f_image is
+'属性图片';
+
+/*==============================================================*/
+/* Index: cms_infoattr_info_fk                                  */
+/*==============================================================*/
+create index cms_infoattr_info_fk on cms_info_attribute (
+   f_info_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_infoattr_attribute_fk                             */
+/*==============================================================*/
+create index cms_infoattr_attribute_fk on cms_info_attribute (
+   f_attribute_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_buffer                                       */
+/*==============================================================*/
+create table cms_info_buffer  (
+   f_info_id            number(10)                      not null,
+   f_views              number(10)                     default 0 not null,
+   f_downloads          number(10)                     default 0 not null,
+   f_comments           number(10)                     default 0 not null,
+   f_involveds          number(10)                     default 0 not null,
+   f_diggs              number(10)                     default 0 not null,
+   f_burys              number(10)                     default 0 not null,
+   f_score              number(10)                     default 0 not null,
+   constraint pk_cms_info_buffer primary key (f_info_id)
+);
+
+comment on table cms_info_buffer is
+'文档缓冲表';
+
+comment on column cms_info_buffer.f_views is
+'浏览次数';
+
+comment on column cms_info_buffer.f_downloads is
+'下载次数';
+
+comment on column cms_info_buffer.f_comments is
+'评论次数';
+
+comment on column cms_info_buffer.f_involveds is
+'评论参与人数';
+
+comment on column cms_info_buffer.f_diggs is
+'顶';
+
+comment on column cms_info_buffer.f_burys is
+'踩';
+
+comment on column cms_info_buffer.f_score is
+'得分';
+
+/*==============================================================*/
+/* Table: cms_info_clob                                         */
+/*==============================================================*/
+create table cms_info_clob  (
+   f_info_id            number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              clob
+);
+
+comment on table cms_info_clob is
+'文档大字段表';
+
+comment on column cms_info_clob.f_key is
+'键';
+
+comment on column cms_info_clob.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_infoclob_info_fk                                  */
+/*==============================================================*/
+create index cms_infoclob_info_fk on cms_info_clob (
+   f_info_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_custom                                       */
+/*==============================================================*/
+create table cms_info_custom  (
+   f_info_id            number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              nvarchar2(2000)
+);
+
+comment on table cms_info_custom is
+'文档自定义表';
+
+comment on column cms_info_custom.f_key is
+'键';
+
+comment on column cms_info_custom.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_infocustom_info_fk                                */
+/*==============================================================*/
+create index cms_infocustom_info_fk on cms_info_custom (
+   f_info_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_detail                                       */
+/*==============================================================*/
+create table cms_info_detail  (
+   f_info_id            number(10)                      not null,
+   f_title              nvarchar2(150)                  not null,
+   f_link               nvarchar2(255),
+   f_html               nvarchar2(255),
+   f_subtitle           nvarchar2(150),
+   f_full_title         nvarchar2(150),
+   f_meta_description   nvarchar2(255),
+   f_is_new_window      nchar(1),
+   f_color              nvarchar2(50),
+   f_is_strong          nchar(1)                       default '0' not null,
+   f_is_em              nchar(1)                       default '0' not null,
+   f_info_path          nvarchar2(255),
+   f_info_template      nvarchar2(255),
+   f_source             nvarchar2(50),
+   f_source_url         nvarchar2(255),
+   f_author             nvarchar2(50),
+   f_small_image        nvarchar2(255),
+   f_large_image        nvarchar2(255),
+   f_video              nvarchar2(255),
+   f_video_name         nvarchar2(255),
+   f_video_length       number(20),
+   f_video_time         nvarchar2(100),
+   f_file               nvarchar2(255),
+   f_file_name          nvarchar2(255),
+   f_file_length        number(20),
+   f_doc                nvarchar2(255),
+   f_doc_name           nvarchar2(255),
+   f_doc_length         nvarchar2(255),
+   f_doc_pdf            nvarchar2(255),
+   f_doc_swf            nvarchar2(255),
+   f_is_allow_comment   nchar(1),
+   f_step_name          nvarchar2(100),
+   constraint pk_cms_info_detail primary key (f_info_id)
+);
+
+comment on table cms_info_detail is
+'文档详细表';
+
+comment on column cms_info_detail.f_title is
+'主标题';
+
+comment on column cms_info_detail.f_link is
+'转向链接';
+
+comment on column cms_info_detail.f_html is
+'HTML页面';
+
+comment on column cms_info_detail.f_subtitle is
+'副标题';
+
+comment on column cms_info_detail.f_full_title is
+'完整标题';
+
+comment on column cms_info_detail.f_meta_description is
+'描述';
+
+comment on column cms_info_detail.f_is_new_window is
+'是否在新窗口打开';
+
+comment on column cms_info_detail.f_color is
+'颜色';
+
+comment on column cms_info_detail.f_is_strong is
+'是否粗体';
+
+comment on column cms_info_detail.f_is_em is
+'是否斜体';
+
+comment on column cms_info_detail.f_info_path is
+'文档路径';
+
+comment on column cms_info_detail.f_info_template is
+'文档模板';
+
+comment on column cms_info_detail.f_source is
+'来源名称';
+
+comment on column cms_info_detail.f_source_url is
+'来源url';
+
+comment on column cms_info_detail.f_author is
+'作者';
+
+comment on column cms_info_detail.f_small_image is
+'小图';
+
+comment on column cms_info_detail.f_large_image is
+'大图';
+
+comment on column cms_info_detail.f_video is
+'视频url';
+
+comment on column cms_info_detail.f_video_name is
+'视频名称';
+
+comment on column cms_info_detail.f_video_length is
+'视频长度';
+
+comment on column cms_info_detail.f_video_time is
+'视频时间';
+
+comment on column cms_info_detail.f_file is
+'文件url';
+
+comment on column cms_info_detail.f_file_name is
+'文件名称';
+
+comment on column cms_info_detail.f_file_length is
+'文件长度';
+
+comment on column cms_info_detail.f_doc is
+'文库url';
+
+comment on column cms_info_detail.f_doc_name is
+'文库名称';
+
+comment on column cms_info_detail.f_doc_length is
+'文库长度';
+
+comment on column cms_info_detail.f_doc_pdf is
+'文库PDF';
+
+comment on column cms_info_detail.f_doc_swf is
+'文库SWF';
+
+comment on column cms_info_detail.f_is_allow_comment is
+'是否允许评论';
+
+comment on column cms_info_detail.f_step_name is
+'审核步骤名称';
+
+/*==============================================================*/
+/* Table: cms_info_file                                         */
+/*==============================================================*/
+create table cms_info_file  (
+   f_info_id            number(10)                      not null,
+   f_name               nvarchar2(150)                  not null,
+   f_length             number(20)                     default 0 not null,
+   f_file               nvarchar2(255)                  not null,
+   f_index              number(10)                     default 0 not null,
+   f_downloads          number(10)                     default 0 not null
+);
+
+comment on table cms_info_file is
+'文档附件集表';
+
+comment on column cms_info_file.f_name is
+'文件名称';
+
+comment on column cms_info_file.f_length is
+'文件长度';
+
+comment on column cms_info_file.f_file is
+'文件地址';
+
+comment on column cms_info_file.f_index is
+'文件序号';
+
+comment on column cms_info_file.f_downloads is
+'下载次数';
+
+/*==============================================================*/
+/* Index: cms_infofile_info_fk                                  */
+/*==============================================================*/
+create index cms_infofile_info_fk on cms_info_file (
+   f_info_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_image                                        */
+/*==============================================================*/
+create table cms_info_image  (
+   f_info_id            number(10)                      not null,
+   f_name               nvarchar2(150),
+   f_image              nvarchar2(255),
+   f_index              number(10)                     default 0 not null,
+   f_text               clob
+);
+
+comment on table cms_info_image is
+'文档图片集表';
+
+comment on column cms_info_image.f_name is
+'图片名称';
+
+comment on column cms_info_image.f_image is
+'图片地址';
+
+comment on column cms_info_image.f_index is
+'图片序号';
+
+comment on column cms_info_image.f_text is
+'图片正文';
+
+/*==============================================================*/
+/* Index: cms_infoimage_info_fk                                 */
+/*==============================================================*/
+create index cms_infoimage_info_fk on cms_info_image (
+   f_info_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_membergroup                                  */
+/*==============================================================*/
+create table cms_info_membergroup  (
+   f_infomgroup_id      number(10)                      not null,
+   f_membergroup_id     number(10)                      not null,
+   f_info_id            number(10)                      not null,
+   f_is_view_perm       nchar(1)                       default '0' not null,
+   constraint pk_cms_info_membergroup primary key (f_infomgroup_id)
+);
+
+comment on table cms_info_membergroup is
+'文档与会员组权限表';
+
+comment on column cms_info_membergroup.f_is_view_perm is
+'是否有浏览权限';
+
+/*==============================================================*/
+/* Index: cms_infomgroup_info_fk                                */
+/*==============================================================*/
+create index cms_infomgroup_info_fk on cms_info_membergroup (
+   f_info_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_infomgroup_mgroup_fk                              */
+/*==============================================================*/
+create index cms_infomgroup_mgroup_fk on cms_info_membergroup (
+   f_membergroup_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_node                                         */
+/*==============================================================*/
+create table cms_info_node  (
+   f_infonode_id        number(10)                      not null,
+   f_info_id            number(10)                      not null,
+   f_node_id            number(10)                      not null,
+   f_node_index         number(10)                     default 0 not null,
+   constraint pk_cms_info_node primary key (f_infonode_id)
+);
+
+comment on table cms_info_node is
+'文档与栏目关联表';
+
+comment on column cms_info_node.f_node_index is
+'栏目顺序';
+
+/*==============================================================*/
+/* Table: cms_info_org                                          */
+/*==============================================================*/
+create table cms_info_org  (
+   f_infoorg_id         number(10)                      not null,
+   f_info_id            number(10)                      not null,
+   f_org_id             number(10)                      not null,
+   f_is_view_perm       nchar(1)                       default '0' not null,
+   constraint pk_cms_info_org primary key (f_infoorg_id)
+);
+
+comment on table cms_info_org is
+'文档与组织权限表';
+
+comment on column cms_info_org.f_is_view_perm is
+'是否有浏览权限';
+
+/*==============================================================*/
+/* Index: cms_infoorg_info_fk                                   */
+/*==============================================================*/
+create index cms_infoorg_info_fk on cms_info_org (
+   f_info_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_infoorg_org_fk                                    */
+/*==============================================================*/
+create index cms_infoorg_org_fk on cms_info_org (
+   f_org_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_info_special                                      */
+/*==============================================================*/
+create table cms_info_special  (
+   f_infospecial_id     number(10)                      not null,
+   f_info_id            number(10)                      not null,
+   f_special_id         number(10)                      not null,
+   f_special_index      number(10)                      not null,
+   constraint pk_cms_info_special primary key (f_infospecial_id)
+);
+
+comment on table cms_info_special is
+'文档与专题关联表';
+
+comment on column cms_info_special.f_special_index is
+'专题序号';
+
+/*==============================================================*/
+/* Table: cms_info_tag                                          */
+/*==============================================================*/
+create table cms_info_tag  (
+   f_infotag_id         number(10)                      not null,
+   f_info_id            number(10)                      not null,
+   f_tag_id             number(10)                      not null,
+   f_tag_index          number(10)                      not null,
+   constraint pk_cms_info_tag primary key (f_infotag_id)
+);
+
+comment on table cms_info_tag is
+'文档与tag关联表';
+
+comment on column cms_info_tag.f_tag_index is
+'tag序号';
+
+/*==============================================================*/
+/* Table: cms_member_group                                      */
+/*==============================================================*/
+create table cms_member_group  (
+   f_membergroup_id     number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_description        nvarchar2(255),
+   f_ip                 clob,
+   f_type               number(10)                     default 0 not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_member_group primary key (f_membergroup_id)
+);
+
+comment on table cms_member_group is
+'会员组表';
+
+comment on column cms_member_group.f_ip is
+'IP';
+
+comment on column cms_member_group.f_type is
+'类型(0:普通组,1:游客组,2:IP组,3:待验证组)';
+
+comment on column cms_member_group.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Table: cms_model                                             */
+/*==============================================================*/
+create table cms_model  (
+   f_model_id           number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_type               nvarchar2(100)                  not null,
+   f_name               nvarchar2(50)                   not null,
+   f_number             nvarchar2(100),
+   f_seq                number(10)                     default 10 not null,
+   constraint pk_cms_model primary key (f_model_id)
+);
+
+comment on table cms_model is
+'模型表';
+
+comment on column cms_model.f_type is
+'类型(info:文档,node:栏目,node_home:首页;special:专题)';
+
+comment on column cms_model.f_name is
+'名称';
+
+comment on column cms_model.f_number is
+'代码';
+
+comment on column cms_model.f_seq is
+'顺序';
+
+/*==============================================================*/
+/* Index: cms_model_site_fk                                     */
+/*==============================================================*/
+create index cms_model_site_fk on cms_model (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_model_custom                                      */
+/*==============================================================*/
+create table cms_model_custom  (
+   f_model_id           number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              nvarchar2(2000)
+);
+
+comment on table cms_model_custom is
+'模型自定义表';
+
+comment on column cms_model_custom.f_key is
+'键';
+
+comment on column cms_model_custom.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_modecust_model_fk                                 */
+/*==============================================================*/
+create index cms_modecust_model_fk on cms_model_custom (
+   f_model_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_model_field                                       */
+/*==============================================================*/
+create table cms_model_field  (
+   f_modefiel_id        number(10)                      not null,
+   f_model_id           number(10)                      not null,
+   f_type               number(10)                      not null,
+   f_inner_type         number(10)                     default 0 not null,
+   f_label              nvarchar2(50)                   not null,
+   f_name               nvarchar2(50)                   not null,
+   f_prompt             nvarchar2(255),
+   f_def_value          nvarchar2(255),
+   f_is_required        nchar(1)                       default '0' not null,
+   f_seq                number(10)                     default 10 not null,
+   f_is_dbl_column      nchar(1)                       default '0' not null,
+   f_is_disabled        nchar(1)                       default '0' not null,
+   constraint pk_cms_model_field primary key (f_modefiel_id)
+);
+
+comment on table cms_model_field is
+'模型字段表';
+
+comment on column cms_model_field.f_type is
+'输入类型';
+
+comment on column cms_model_field.f_inner_type is
+'内部类型(0:用户自定义字段;1:系统定义字段;2:预留大文本字段;3:预留可查询字段)';
+
+comment on column cms_model_field.f_label is
+'字段标签';
+
+comment on column cms_model_field.f_name is
+'字段名称';
+
+comment on column cms_model_field.f_prompt is
+'提示信息';
+
+comment on column cms_model_field.f_def_value is
+'默认值';
+
+comment on column cms_model_field.f_is_required is
+'是否必填项';
+
+comment on column cms_model_field.f_seq is
+'顺序';
+
+comment on column cms_model_field.f_is_dbl_column is
+'是否双列布局';
+
+comment on column cms_model_field.f_is_disabled is
+'是否禁用';
+
+/*==============================================================*/
+/* Index: cms_modefiel_model_fk                                 */
+/*==============================================================*/
+create index cms_modefiel_model_fk on cms_model_field (
+   f_model_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_model_field_custom                                */
+/*==============================================================*/
+create table cms_model_field_custom  (
+   f_modefiel_id        number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              nvarchar2(2000)
+);
+
+comment on table cms_model_field_custom is
+'模型字段自定义信息表';
+
+comment on column cms_model_field_custom.f_key is
+'键';
+
+comment on column cms_model_field_custom.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_modfiecus_modefiel_fk                             */
+/*==============================================================*/
+create index cms_modfiecus_modefiel_fk on cms_model_field_custom (
+   f_modefiel_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_node                                              */
+/*==============================================================*/
+create table cms_node  (
+   f_node_id            number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_info_model_id      number(10),
+   f_parent_id          number(10),
+   f_creator_id         number(10)                      not null,
+   f_node_model_id      number(10)                      not null,
+   f_workflow_id        number(10),
+   f_number             nvarchar2(100),
+   f_name               nvarchar2(150)                  not null,
+   f_tree_number        nvarchar2(100)                 default '0000' not null,
+   f_tree_level         number(10)                     default 0 not null,
+   f_tree_max           nvarchar2(10)                  default '0000' not null,
+   f_creation_date      date                            not null,
+   f_refers             number(10)                     default 0 not null,
+   f_views              number(10)                     default 0 not null,
+   f_is_real_node       nchar(1)                       default '1' not null,
+   f_is_hidden          nchar(1)                       default '0' not null,
+   f_html_status        nchar(1)                       default '0' not null,
+   f_p1                 number(3),
+   f_p2                 number(3),
+   f_p3                 number(3),
+   f_p4                 number(3),
+   f_p5                 number(3),
+   f_p6                 number(3),
+   constraint pk_cms_node primary key (f_node_id)
+);
+
+comment on table cms_node is
+'栏目表';
+
+comment on column cms_node.f_number is
+'代码';
+
+comment on column cms_node.f_name is
+'名称';
+
+comment on column cms_node.f_tree_number is
+'树编码';
+
+comment on column cms_node.f_tree_level is
+'树级别';
+
+comment on column cms_node.f_tree_max is
+'树子节点最大编码';
+
+comment on column cms_node.f_creation_date is
+'创建时间';
+
+comment on column cms_node.f_refers is
+'文档数量';
+
+comment on column cms_node.f_views is
+'浏览总数';
+
+comment on column cms_node.f_is_real_node is
+'是否真实栏目';
+
+comment on column cms_node.f_is_hidden is
+'是否隐藏';
+
+comment on column cms_node.f_html_status is
+'HTML状态(0:未开启,1:待生成,2:待更新,3:已生成)';
+
+comment on column cms_node.f_p1 is
+'自定义1';
+
+comment on column cms_node.f_p2 is
+'自定义2';
+
+comment on column cms_node.f_p3 is
+'自定义3';
+
+comment on column cms_node.f_p4 is
+'自定义4';
+
+comment on column cms_node.f_p5 is
+'自定义5';
+
+comment on column cms_node.f_p6 is
+'自定义6';
+
+/*==============================================================*/
+/* Index: cms_node_parent_fk                                    */
+/*==============================================================*/
+create index cms_node_parent_fk on cms_node (
+   f_parent_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_node_model_node_fk                                */
+/*==============================================================*/
+create index cms_node_model_node_fk on cms_node (
+   f_node_model_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_node_model_info_fk                                */
+/*==============================================================*/
+create index cms_node_model_info_fk on cms_node (
+   f_info_model_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_node_site_fk                                      */
+/*==============================================================*/
+create index cms_node_site_fk on cms_node (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_node_user_creator_fk                              */
+/*==============================================================*/
+create index cms_node_user_creator_fk on cms_node (
+   f_creator_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_node_workflow_fk                                  */
+/*==============================================================*/
+create index cms_node_workflow_fk on cms_node (
+   f_workflow_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_node_buffer                                       */
+/*==============================================================*/
+create table cms_node_buffer  (
+   f_node_id            number(10)                      not null,
+   f_views              number(10)                      not null,
+   constraint pk_cms_node_buffer primary key (f_node_id)
+);
+
+comment on table cms_node_buffer is
+'栏目缓冲表';
+
+comment on column cms_node_buffer.f_views is
+'浏览次数';
+
+/*==============================================================*/
+/* Table: cms_node_clob                                         */
+/*==============================================================*/
+create table cms_node_clob  (
+   f_node_id            number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              clob
+);
+
+comment on table cms_node_clob is
+'栏目大字段表';
+
+comment on column cms_node_clob.f_key is
+'键';
+
+comment on column cms_node_clob.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_nodeclob_node_fk                                  */
+/*==============================================================*/
+create index cms_nodeclob_node_fk on cms_node_clob (
+   f_node_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_node_custom                                       */
+/*==============================================================*/
+create table cms_node_custom  (
+   f_node_id            number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              nvarchar2(2000)
+);
+
+comment on table cms_node_custom is
+'栏目自定义表';
+
+comment on column cms_node_custom.f_key is
+'键';
+
+comment on column cms_node_custom.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_nodecustom_node_fk                                */
+/*==============================================================*/
+create index cms_nodecustom_node_fk on cms_node_custom (
+   f_node_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_node_detail                                       */
+/*==============================================================*/
+create table cms_node_detail  (
+   f_node_id            number(10)                      not null,
+   f_link               nvarchar2(255),
+   f_html               nvarchar2(255),
+   f_meta_keywords      nvarchar2(150),
+   f_meta_description   nvarchar2(255),
+   f_is_new_window      nchar(1),
+   f_node_template      nvarchar2(255),
+   f_info_template      nvarchar2(255),
+   f_is_generate_node   nchar(1),
+   f_is_generate_info   nchar(1),
+   f_node_extension     nvarchar2(10),
+   f_info_extension     nvarchar2(10),
+   f_node_path          nvarchar2(100),
+   f_info_path          nvarchar2(100),
+   f_is_def_page        nchar(1),
+   f_static_method      number(10),
+   f_static_page        number(10),
+   f_small_image        nvarchar2(255),
+   f_large_image        nvarchar2(255),
+   constraint pk_cms_node_detail primary key (f_node_id)
+);
+
+comment on table cms_node_detail is
+'栏目详细表';
+
+comment on column cms_node_detail.f_link is
+'转向链接';
+
+comment on column cms_node_detail.f_html is
+'HTML页面';
+
+comment on column cms_node_detail.f_meta_keywords is
+'关键字';
+
+comment on column cms_node_detail.f_meta_description is
+'描述';
+
+comment on column cms_node_detail.f_is_new_window is
+'是否在新窗口打开';
+
+comment on column cms_node_detail.f_node_template is
+'栏目模板';
+
+comment on column cms_node_detail.f_info_template is
+'文档模板';
+
+comment on column cms_node_detail.f_is_generate_node is
+'是否生成栏目页';
+
+comment on column cms_node_detail.f_is_generate_info is
+'是否生成文档页';
+
+comment on column cms_node_detail.f_node_extension is
+'栏目页扩展名';
+
+comment on column cms_node_detail.f_info_extension is
+'文档页扩展名';
+
+comment on column cms_node_detail.f_node_path is
+'栏目路径';
+
+comment on column cms_node_detail.f_info_path is
+'文档路径';
+
+comment on column cms_node_detail.f_is_def_page is
+'是否默认页';
+
+comment on column cms_node_detail.f_static_method is
+'静态页生成方式(0:手动生成;1:自动生成栏目页;2:自动生成文档页及栏目页;3:自动生成文档页、栏目页、父栏目页、首页)';
+
+comment on column cms_node_detail.f_static_page is
+'栏目列表静态化页数';
+
+comment on column cms_node_detail.f_small_image is
+'小图';
+
+comment on column cms_node_detail.f_large_image is
+'大图';
+
+/*==============================================================*/
+/* Table: cms_node_membergroup                                  */
+/*==============================================================*/
+create table cms_node_membergroup  (
+   f_nodemgroup_id      number(10)                      not null,
+   f_node_id            number(10)                      not null,
+   f_membergroup_id     number(10)                      not null,
+   f_is_view_perm       nchar(1)                       default '1' not null,
+   f_is_contri_perm     nchar(1)                       default '1' not null,
+   f_is_comment_perm    nchar(1)                       default '1' not null,
+   constraint pk_cms_node_membergroup primary key (f_nodemgroup_id)
+);
+
+comment on table cms_node_membergroup is
+'栏目与用户组权限表';
+
+comment on column cms_node_membergroup.f_is_view_perm is
+'是否有浏览权限';
+
+comment on column cms_node_membergroup.f_is_contri_perm is
+'是否有投稿权限';
+
+comment on column cms_node_membergroup.f_is_comment_perm is
+'是否有评论权限';
+
+/*==============================================================*/
+/* Index: cms_nodemgroup_node_fk                                */
+/*==============================================================*/
+create index cms_nodemgroup_node_fk on cms_node_membergroup (
+   f_node_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_nodemgroup_group_fk                               */
+/*==============================================================*/
+create index cms_nodemgroup_group_fk on cms_node_membergroup (
+   f_membergroup_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_node_org                                          */
+/*==============================================================*/
+create table cms_node_org  (
+   f_nodeorg_id         number(10)                      not null,
+   f_org_id             number(10)                      not null,
+   f_node_id            number(10)                      not null,
+   f_is_view_perm       nchar(1)                       default '0' not null,
+   constraint pk_cms_node_org primary key (f_nodeorg_id)
+);
+
+comment on table cms_node_org is
+'栏目与组织权限表';
+
+comment on column cms_node_org.f_is_view_perm is
+'是否有浏览权限';
+
+/*==============================================================*/
+/* Index: cms_nodeorg_node_fk                                   */
+/*==============================================================*/
+create index cms_nodeorg_node_fk on cms_node_org (
+   f_node_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_nodeorg_org_fk                                    */
+/*==============================================================*/
+create index cms_nodeorg_org_fk on cms_node_org (
+   f_org_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_node_role                                         */
+/*==============================================================*/
+create table cms_node_role  (
+   f_noderole_id        number(10)                      not null,
+   f_node_id            number(10)                      not null,
+   f_role_id            number(10)                      not null,
+   f_is_node_perm       nchar(1)                       default '1' not null,
+   f_is_info_perm       nchar(1)                       default '1' not null,
+   constraint pk_cms_node_role primary key (f_noderole_id)
+);
+
+comment on table cms_node_role is
+'栏目与角色权限表';
+
+comment on column cms_node_role.f_is_node_perm is
+'栏目权限';
+
+comment on column cms_node_role.f_is_info_perm is
+'文档权限';
+
+/*==============================================================*/
+/* Index: cms_noderole_role_fk                                  */
+/*==============================================================*/
+create index cms_noderole_role_fk on cms_node_role (
+   f_role_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_noderole_node_fk                                  */
+/*==============================================================*/
+create index cms_noderole_node_fk on cms_node_role (
+   f_node_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_operation_log                                     */
+/*==============================================================*/
+create table cms_operation_log  (
+   f_operation_id       number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(150)                  not null,
+   f_data_id            number(10),
+   f_description        nvarchar2(255),
+   f_text               clob,
+   f_ip                 nvarchar2(100)                  not null,
+   f_time               date                            not null,
+   f_type               number(10)                     default 1 not null,
+   constraint pk_cms_operation_log primary key (f_operation_id)
+);
+
+comment on table cms_operation_log is
+'操作日志表';
+
+comment on column cms_operation_log.f_name is
+'名称';
+
+comment on column cms_operation_log.f_data_id is
+'数据ID';
+
+comment on column cms_operation_log.f_description is
+'描述';
+
+comment on column cms_operation_log.f_text is
+'详情';
+
+comment on column cms_operation_log.f_ip is
+'IP';
+
+comment on column cms_operation_log.f_time is
+'时间';
+
+comment on column cms_operation_log.f_type is
+'类型(1:操作日志,2:登录日志,3:登录失败)';
+
+/*==============================================================*/
+/* Index: cms_operationlog_user_fk                              */
+/*==============================================================*/
+create index cms_operationlog_user_fk on cms_operation_log (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_operationlog_site_fk                              */
+/*==============================================================*/
+create index cms_operationlog_site_fk on cms_operation_log (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_org                                               */
+/*==============================================================*/
+create table cms_org  (
+   f_org_id             number(10)                      not null,
+   f_parent_id          number(10),
+   f_name               nvarchar2(150)                  not null,
+   f_full_name          nvarchar2(150),
+   f_description        nvarchar2(255),
+   f_contacts           nvarchar2(100),
+   f_number             nvarchar2(100),
+   f_phone              nvarchar2(100),
+   f_fax                nvarchar2(100),
+   f_address            nvarchar2(255),
+   f_tree_number        nvarchar2(100)                 default '0000' not null,
+   f_tree_level         number(10)                     default 0 not null,
+   f_tree_max           nvarchar2(10)                  default '0000' not null,
+   constraint pk_cms_org primary key (f_org_id)
+);
+
+comment on table cms_org is
+'组织表';
+
+comment on column cms_org.f_name is
+'名称';
+
+comment on column cms_org.f_full_name is
+'全称';
+
+comment on column cms_org.f_description is
+'描述';
+
+comment on column cms_org.f_contacts is
+'联系人';
+
+comment on column cms_org.f_number is
+'编码';
+
+comment on column cms_org.f_phone is
+'电话';
+
+comment on column cms_org.f_fax is
+'传真';
+
+comment on column cms_org.f_address is
+'地址';
+
+comment on column cms_org.f_tree_number is
+'树编码';
+
+comment on column cms_org.f_tree_level is
+'树级别';
+
+comment on column cms_org.f_tree_max is
+'树子节点最大编码';
+
+/*==============================================================*/
+/* Index: cms_org_parent_fk                                     */
+/*==============================================================*/
+create index cms_org_parent_fk on cms_org (
+   f_parent_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_publish_point                                     */
+/*==============================================================*/
+create table cms_publish_point  (
+   f_publishpoint_id    number(10)                      not null,
+   f_global_id          number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_description        nvarchar2(255),
+   f_store_path         nvarchar2(255),
+   f_display_path       nvarchar2(255),
+   f_ftp_hostname       nvarchar2(100),
+   f_ftp_port           number(10),
+   f_ftp_username       nvarchar2(100),
+   f_ftp_password       nvarchar2(100),
+   f_seq                number(10)                     default 2147483647 not null,
+   f_method             number(10)                     default 1 not null,
+   f_type               number(10)                     default 1 not null,
+   constraint pk_cms_publish_point primary key (f_publishpoint_id)
+);
+
+comment on table cms_publish_point is
+'发布点表';
+
+comment on column cms_publish_point.f_name is
+'名称';
+
+comment on column cms_publish_point.f_description is
+'描述';
+
+comment on column cms_publish_point.f_store_path is
+'保存路径';
+
+comment on column cms_publish_point.f_display_path is
+'显示路径';
+
+comment on column cms_publish_point.f_ftp_hostname is
+'ftp服务器';
+
+comment on column cms_publish_point.f_ftp_port is
+'ftp端口';
+
+comment on column cms_publish_point.f_ftp_username is
+'ftp用户名';
+
+comment on column cms_publish_point.f_ftp_password is
+'ftp密码';
+
+comment on column cms_publish_point.f_seq is
+'排列顺序';
+
+comment on column cms_publish_point.f_method is
+'方式(1:文件系统,2:FTP)';
+
+comment on column cms_publish_point.f_type is
+'类型(1:HTML发布,2:附件发布)';
+
+/*==============================================================*/
+/* Index: cms_publishpoint_global_fk                            */
+/*==============================================================*/
+create index cms_publishpoint_global_fk on cms_publish_point (
+   f_global_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_qitem_qrecord                                     */
+/*==============================================================*/
+create table cms_qitem_qrecord  (
+   f_qitemqrecord_id    number(10)                      not null,
+   f_questionrecord_id  number(10)                      not null,
+   f_questionoption_id  number(10)                      not null,
+   f_answer             clob,
+   constraint pk_cms_qitem_qrecord primary key (f_qitemqrecord_id)
+);
+
+comment on table cms_qitem_qrecord is
+'调查问卷项与调查问卷记录关联表';
+
+comment on column cms_qitem_qrecord.f_answer is
+'回答';
+
+/*==============================================================*/
+/* Index: cms_qiqr_qrecord_fk                                   */
+/*==============================================================*/
+create index cms_qiqr_qrecord_fk on cms_qitem_qrecord (
+   f_questionrecord_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_qiqr_qoption_fk                                   */
+/*==============================================================*/
+create index cms_qiqr_qoption_fk on cms_qitem_qrecord (
+   f_questionoption_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_qoption_qrecord                                   */
+/*==============================================================*/
+create table cms_qoption_qrecord  (
+   f_qoptionqrecord_id  number(10)                      not null,
+   f_questionrecord_id  number(10)                      not null,
+   f_questionoption_id  number(10)                      not null,
+   constraint pk_cms_qoption_qrecord primary key (f_qoptionqrecord_id)
+);
+
+comment on table cms_qoption_qrecord is
+'调查问卷选项与调查问卷记录关联表';
+
+/*==============================================================*/
+/* Index: cms_qoqr_qoption_fk                                   */
+/*==============================================================*/
+create index cms_qoqr_qoption_fk on cms_qoption_qrecord (
+   f_questionoption_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_qoqr_qrecord_fk                                   */
+/*==============================================================*/
+create index cms_qoqr_qrecord_fk on cms_qoption_qrecord (
+   f_questionrecord_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_question                                          */
+/*==============================================================*/
+create table cms_question  (
+   f_question_id        number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_title              nvarchar2(150)                  not null,
+   f_description        nvarchar2(255),
+   f_begin_date         date,
+   f_end_date           date,
+   f_creation_date      date                            not null,
+   f_mode               number(10)                     default 1 not null,
+   f_total              number(10)                     default 0 not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_question primary key (f_question_id)
+);
+
+comment on table cms_question is
+'调查问卷表';
+
+comment on column cms_question.f_title is
+'标题';
+
+comment on column cms_question.f_description is
+'描述';
+
+comment on column cms_question.f_begin_date is
+'开始日期';
+
+comment on column cms_question.f_end_date is
+'结束日期';
+
+comment on column cms_question.f_creation_date is
+'创建日期';
+
+comment on column cms_question.f_mode is
+'模式(1:独立访客,2:独立IP,3:独立用户)';
+
+comment on column cms_question.f_total is
+'总票数';
+
+comment on column cms_question.f_status is
+'状态(0:启用,1:禁用)';
+
+/*==============================================================*/
+/* Index: cms_question_site_fk                                  */
+/*==============================================================*/
+create index cms_question_site_fk on cms_question (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_question_item                                     */
+/*==============================================================*/
+create table cms_question_item  (
+   f_questionitem_id    number(10)                      not null,
+   f_question_id        number(10)                      not null,
+   f_title              nvarchar2(150)                  not null,
+   f_max_selected       number(10)                     default 1 not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_question_item primary key (f_questionitem_id)
+);
+
+comment on table cms_question_item is
+'调查问卷项表';
+
+comment on column cms_question_item.f_max_selected is
+'最多可选几项(0不限制)';
+
+comment on column cms_question_item.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_qitem_question_fk                                 */
+/*==============================================================*/
+create index cms_qitem_question_fk on cms_question_item (
+   f_question_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_question_option                                   */
+/*==============================================================*/
+create table cms_question_option  (
+   f_questionoption_id  number(10)                      not null,
+   f_questionitem_id    number(10)                      not null,
+   f_title              nvarchar2(150),
+   f_is_input           nchar(1)                       default '0' not null,
+   f_count              number(10)                     default 0 not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_question_option primary key (f_questionoption_id)
+);
+
+comment on table cms_question_option is
+'调查问卷选项表';
+
+comment on column cms_question_option.f_title is
+'标题';
+
+comment on column cms_question_option.f_is_input is
+'是否输入框';
+
+comment on column cms_question_option.f_count is
+'得票数';
+
+comment on column cms_question_option.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_qoption_qitem_fk                                  */
+/*==============================================================*/
+create index cms_qoption_qitem_fk on cms_question_option (
+   f_questionitem_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_question_record                                   */
+/*==============================================================*/
+create table cms_question_record  (
+   f_questionrecord_id  number(10)                      not null,
+   f_user_id            number(10),
+   f_question_id        number(10)                      not null,
+   f_date               date                            not null,
+   f_ip                 nvarchar2(100)                  not null,
+   f_cookie             nvarchar2(100)                  not null,
+   constraint pk_cms_question_record primary key (f_questionrecord_id)
+);
+
+comment on table cms_question_record is
+'调查问卷记录表';
+
+comment on column cms_question_record.f_date is
+'日期';
+
+comment on column cms_question_record.f_ip is
+'IP';
+
+comment on column cms_question_record.f_cookie is
+'Cookie';
+
+/*==============================================================*/
+/* Index: cms_qrecord_question_fk                               */
+/*==============================================================*/
+create index cms_qrecord_question_fk on cms_question_record (
+   f_question_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_questionrecord_user_fk                            */
+/*==============================================================*/
+create index cms_questionrecord_user_fk on cms_question_record (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_role                                              */
+/*==============================================================*/
+create table cms_role  (
+   f_role_id            number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_description        nvarchar2(255),
+   f_seq                number(10)                     default 2147483647 not null,
+   f_perms              clob,
+   f_is_all_perm        nchar(1)                       default '1' not null,
+   f_is_all_info_perm   nchar(1)                       default '1' not null,
+   f_is_all_node_perm   nchar(1)                       default '1' not null,
+   f_is_info_final_perm nchar(1)                       default '0' not null,
+   f_info_perm_type     number(10)                     default 1 not null,
+   constraint pk_cms_role primary key (f_role_id)
+);
+
+comment on table cms_role is
+'角色表';
+
+comment on column cms_role.f_seq is
+'排序';
+
+comment on column cms_role.f_perms is
+'功能权限';
+
+comment on column cms_role.f_is_all_perm is
+'是否拥有所有功能权限';
+
+comment on column cms_role.f_is_all_info_perm is
+'是否拥有所有文档权限';
+
+comment on column cms_role.f_is_all_node_perm is
+'是否拥有所有栏目权限';
+
+comment on column cms_role.f_is_info_final_perm is
+'是否拥有文档终审权限';
+
+comment on column cms_role.f_info_perm_type is
+'文档权限类型(1:所有;2:组织;3:自身)';
+
+/*==============================================================*/
+/* Index: cms_role_site_fk                                      */
+/*==============================================================*/
+create index cms_role_site_fk on cms_role (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_schedule_job                                      */
+/*==============================================================*/
+create table cms_schedule_job  (
+   f_schedulejob_id     number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_group              nvarchar2(100),
+   f_code               nvarchar2(100)                  not null,
+   f_data               clob,
+   f_description        nvarchar2(255),
+   f_cron_expression    nvarchar2(100),
+   f_start_time         date,
+   f_end_time           date,
+   f_start_delay        number(20),
+   f_repeat_interval    number(20),
+   f_unit               number(10),
+   f_cycle              number(10)                     default 1 not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_schedule_job primary key (f_schedulejob_id)
+);
+
+comment on table cms_schedule_job is
+'定时任务表';
+
+comment on column cms_schedule_job.f_name is
+'任务名称';
+
+comment on column cms_schedule_job.f_group is
+'任务组';
+
+comment on column cms_schedule_job.f_code is
+'任务代码';
+
+comment on column cms_schedule_job.f_data is
+'任务数据';
+
+comment on column cms_schedule_job.f_description is
+'任务描述';
+
+comment on column cms_schedule_job.f_cron_expression is
+'Cron表达式';
+
+comment on column cms_schedule_job.f_start_time is
+'开始时间';
+
+comment on column cms_schedule_job.f_end_time is
+'结束时间';
+
+comment on column cms_schedule_job.f_start_delay is
+'首次延迟时间(分钟)';
+
+comment on column cms_schedule_job.f_repeat_interval is
+'间隔时间';
+
+comment on column cms_schedule_job.f_unit is
+'时间单位(1:毫秒,2:秒,3:分,4:时,5:天,6:周,7:月,8:年)';
+
+comment on column cms_schedule_job.f_cycle is
+'执行周期(1:cron,2:simple)';
+
+comment on column cms_schedule_job.f_status is
+'状态(0:启用;1:禁用)';
+
+/*==============================================================*/
+/* Index: cms_schedulejob_user_fk                               */
+/*==============================================================*/
+create index cms_schedulejob_user_fk on cms_schedule_job (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_schedulejob_site_fk                               */
+/*==============================================================*/
+create index cms_schedulejob_site_fk on cms_schedule_job (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_score_board                                       */
+/*==============================================================*/
+create table cms_score_board  (
+   f_scoreboard_id      number(10)                      not null,
+   f_scoreitem_id       number(10)                      not null,
+   f_ftype              nvarchar2(50)                   not null,
+   f_fid                number(10)                      not null,
+   f_votes              number(10)                     default 0 not null,
+   constraint pk_cms_score_board primary key (f_scoreboard_id)
+);
+
+comment on table cms_score_board is
+'计分牌表';
+
+comment on column cms_score_board.f_ftype is
+'外表标识';
+
+comment on column cms_score_board.f_fid is
+'外表ID';
+
+comment on column cms_score_board.f_votes is
+'投票次数';
+
+/*==============================================================*/
+/* Index: cms_scoreboard_scoreitem_fk                           */
+/*==============================================================*/
+create index cms_scoreboard_scoreitem_fk on cms_score_board (
+   f_scoreitem_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_score_group                                       */
+/*==============================================================*/
+create table cms_score_group  (
+   f_scoregroup_id      number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_number             nvarchar2(100),
+   f_description        nvarchar2(255),
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_score_group primary key (f_scoregroup_id)
+);
+
+comment on table cms_score_group is
+'计分组表';
+
+comment on column cms_score_group.f_name is
+'名称';
+
+comment on column cms_score_group.f_number is
+'代码';
+
+comment on column cms_score_group.f_description is
+'描述';
+
+comment on column cms_score_group.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_scoregroup_site_fk                                */
+/*==============================================================*/
+create index cms_scoregroup_site_fk on cms_score_group (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_score_item                                        */
+/*==============================================================*/
+create table cms_score_item  (
+   f_scoreitem_id       number(10)                      not null,
+   f_scoregroup_id      number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_score              number(10)                     default 1 not null,
+   f_icon               nvarchar2(255),
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_score_item primary key (f_scoreitem_id)
+);
+
+comment on table cms_score_item is
+'计分项表';
+
+comment on column cms_score_item.f_name is
+'名称';
+
+comment on column cms_score_item.f_score is
+'分值';
+
+comment on column cms_score_item.f_icon is
+'图标';
+
+comment on column cms_score_item.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_scoreitem_site_fk                                 */
+/*==============================================================*/
+create index cms_scoreitem_site_fk on cms_score_item (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_scoreitem_scoregroup_fk                           */
+/*==============================================================*/
+create index cms_scoreitem_scoregroup_fk on cms_score_item (
+   f_scoregroup_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_sensitive_word                                    */
+/*==============================================================*/
+create table cms_sensitive_word  (
+   f_sensitiveword_id   number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_replacement        nvarchar2(100),
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_sensitive_word primary key (f_sensitiveword_id)
+);
+
+comment on table cms_sensitive_word is
+'敏感词表';
+
+comment on column cms_sensitive_word.f_name is
+'敏感词';
+
+comment on column cms_sensitive_word.f_replacement is
+'替换词';
+
+comment on column cms_sensitive_word.f_status is
+'状态(0:启用,1:禁用)';
+
+/*==============================================================*/
+/* Table: cms_site                                              */
+/*==============================================================*/
+create table cms_site  (
+   f_site_id            number(10)                      not null,
+   f_global_id          number(10)                      not null,
+   f_org_id             number(10)                      not null,
+   f_html_publishpoint_id number(10)                      not null,
+   f_parent_id          number(10),
+   f_name               nvarchar2(100)                  not null,
+   f_number             nvarchar2(100)                  not null,
+   f_full_name          nvarchar2(100),
+   f_no_picture         nvarchar2(255)                 default '/img/no_picture.jpg' not null,
+   f_template_theme     nvarchar2(100)                 default 'default' not null,
+   f_domain             nvarchar2(100)                 default 'localhost' not null,
+   f_is_identify_domain nchar(1)                       default '0' not null,
+   f_is_static_home     nchar(1)                       default '0' not null,
+   f_is_def             nchar(1)                       default '0' not null,
+   f_status             number(10)                     default 0 not null,
+   f_tree_number        nvarchar2(100)                 default '0000' not null,
+   f_tree_level         number(10)                     default 0 not null,
+   f_tree_max           nvarchar2(10)                  default '0000' not null,
+   constraint pk_cms_site primary key (f_site_id),
+   constraint ak_number_cms_site unique (f_number)
+);
+
+comment on table cms_site is
+'站点表';
+
+comment on column cms_site.f_name is
+'名称';
+
+comment on column cms_site.f_number is
+'代码';
+
+comment on column cms_site.f_full_name is
+'完整名称';
+
+comment on column cms_site.f_no_picture is
+'暂无图片';
+
+comment on column cms_site.f_template_theme is
+'模板主题';
+
+comment on column cms_site.f_domain is
+'域名';
+
+comment on column cms_site.f_is_identify_domain is
+'是否识别域名';
+
+comment on column cms_site.f_is_static_home is
+'是否静态首页';
+
+comment on column cms_site.f_is_def is
+'是否默认站点';
+
+comment on column cms_site.f_status is
+'状态(0:正常,1:禁用)';
+
+comment on column cms_site.f_tree_number is
+'树编码';
+
+comment on column cms_site.f_tree_level is
+'树级别';
+
+comment on column cms_site.f_tree_max is
+'树子节点最大编码';
+
+/*==============================================================*/
+/* Index: cms_site_global_fk                                    */
+/*==============================================================*/
+create index cms_site_global_fk on cms_site (
+   f_global_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_site_org_fk                                       */
+/*==============================================================*/
+create index cms_site_org_fk on cms_site (
+   f_org_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_site_parent_fk                                    */
+/*==============================================================*/
+create index cms_site_parent_fk on cms_site (
+   f_parent_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_site_publishpint_fk                               */
+/*==============================================================*/
+create index cms_site_publishpint_fk on cms_site (
+   f_html_publishpoint_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_site_clob                                         */
+/*==============================================================*/
+create table cms_site_clob  (
+   f_site_id            number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              clob
+);
+
+comment on table cms_site_clob is
+'站点大字段表';
+
+comment on column cms_site_clob.f_key is
+'键';
+
+comment on column cms_site_clob.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_siteclob_site_fk                                  */
+/*==============================================================*/
+create index cms_siteclob_site_fk on cms_site_clob (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_site_custom                                       */
+/*==============================================================*/
+create table cms_site_custom  (
+   f_site_id            number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              nvarchar2(2000)
+);
+
+comment on table cms_site_custom is
+'站点自定义表';
+
+comment on column cms_site_custom.f_key is
+'键';
+
+comment on column cms_site_custom.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_sitecustom_site_fk                                */
+/*==============================================================*/
+create index cms_sitecustom_site_fk on cms_site_custom (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_special                                           */
+/*==============================================================*/
+create table cms_special  (
+   f_special_id         number(10)                      not null,
+   f_creator_id         number(10)                      not null,
+   f_model_id           number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_speccate_id        number(10)                      not null,
+   f_creation_date      date                            not null,
+   f_title              nvarchar2(150)                  not null,
+   f_meta_keywords      nvarchar2(150),
+   f_meta_description   nvarchar2(255),
+   f_special_template   nvarchar2(255),
+   f_small_image        nvarchar2(255),
+   f_large_image        nvarchar2(255),
+   f_video              nvarchar2(255),
+   f_video_name         nvarchar2(255),
+   f_video_length       number(20),
+   f_video_time         nvarchar2(100),
+   f_refers             number(10)                     default 0 not null,
+   f_views              number(10)                     default 0 not null,
+   f_is_with_image      nchar(1)                       default '0' not null,
+   f_is_recommend       nchar(1)                       default '0' not null,
+   constraint pk_cms_special primary key (f_special_id)
+);
+
+comment on table cms_special is
+'专题表';
+
+comment on column cms_special.f_creation_date is
+'创建日期';
+
+comment on column cms_special.f_title is
+'标题';
+
+comment on column cms_special.f_meta_keywords is
+'关键字';
+
+comment on column cms_special.f_meta_description is
+'描述';
+
+comment on column cms_special.f_special_template is
+'专题模板';
+
+comment on column cms_special.f_small_image is
+'小图';
+
+comment on column cms_special.f_large_image is
+'大图';
+
+comment on column cms_special.f_video is
+'视频';
+
+comment on column cms_special.f_video_name is
+'视频名称';
+
+comment on column cms_special.f_video_length is
+'视频长度';
+
+comment on column cms_special.f_video_time is
+'视频时间';
+
+comment on column cms_special.f_refers is
+'文档数量';
+
+comment on column cms_special.f_views is
+'浏览总数';
+
+comment on column cms_special.f_is_with_image is
+'是否有图片';
+
+comment on column cms_special.f_is_recommend is
+'是否推荐';
+
+/*==============================================================*/
+/* Index: cms_special_speccate_fk                               */
+/*==============================================================*/
+create index cms_special_speccate_fk on cms_special (
+   f_speccate_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_special_site_fk                                   */
+/*==============================================================*/
+create index cms_special_site_fk on cms_special (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_special_creator_fk                                */
+/*==============================================================*/
+create index cms_special_creator_fk on cms_special (
+   f_creator_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_special_model_fk                                  */
+/*==============================================================*/
+create index cms_special_model_fk on cms_special (
+   f_model_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_special_category                                  */
+/*==============================================================*/
+create table cms_special_category  (
+   f_speccate_id        number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(50)                   not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   f_views              number(10)                     default 0 not null,
+   f_meta_keywords      nvarchar2(150),
+   f_meta_description   nvarchar2(255),
+   f_creation_date      date                            not null,
+   constraint pk_cms_special_category primary key (f_speccate_id)
+);
+
+comment on table cms_special_category is
+'专题类别表';
+
+comment on column cms_special_category.f_name is
+'名称';
+
+comment on column cms_special_category.f_seq is
+'排序';
+
+comment on column cms_special_category.f_views is
+'浏览总数';
+
+comment on column cms_special_category.f_meta_keywords is
+'关键字';
+
+comment on column cms_special_category.f_meta_description is
+'描述';
+
+comment on column cms_special_category.f_creation_date is
+'创建日期';
+
+/*==============================================================*/
+/* Index: cms_speccategory_site_fk                              */
+/*==============================================================*/
+create index cms_speccategory_site_fk on cms_special_category (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_special_clob                                      */
+/*==============================================================*/
+create table cms_special_clob  (
+   f_special_id         number(10)                      not null,
+   f_key                nvarchar2(50)                   not null,
+   f_value              clob
+);
+
+comment on table cms_special_clob is
+'专题大字段表';
+
+comment on column cms_special_clob.f_key is
+'键';
+
+comment on column cms_special_clob.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_specialclob_special_fk                            */
+/*==============================================================*/
+create index cms_specialclob_special_fk on cms_special_clob (
+   f_special_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_special_custom                                    */
+/*==============================================================*/
+create table cms_special_custom  (
+   f_special_id         number(10)                      not null,
+   f_key                nvarchar2(50),
+   f_value              nvarchar2(2000)
+);
+
+comment on table cms_special_custom is
+'专题自定义表';
+
+comment on column cms_special_custom.f_key is
+'键';
+
+comment on column cms_special_custom.f_value is
+'值';
+
+/*==============================================================*/
+/* Index: cms_specialcustom_special_fk                          */
+/*==============================================================*/
+create index cms_specialcustom_special_fk on cms_special_custom (
+   f_special_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_special_file                                      */
+/*==============================================================*/
+create table cms_special_file  (
+   f_special_id         number(10)                      not null,
+   f_name               nvarchar2(150)                  not null,
+   f_length             number(20)                     default 0 not null,
+   f_file               nvarchar2(255)                  not null,
+   f_index              number(10)                     default 0 not null,
+   f_downloads          number(10)                     default 0 not null
+);
+
+comment on table cms_special_file is
+'专题附件集表';
+
+comment on column cms_special_file.f_name is
+'文件名称';
+
+comment on column cms_special_file.f_length is
+'文件长度';
+
+comment on column cms_special_file.f_file is
+'文件地址';
+
+comment on column cms_special_file.f_index is
+'文件序号';
+
+comment on column cms_special_file.f_downloads is
+'下载次数';
+
+/*==============================================================*/
+/* Index: cms_specialfile_special_fk                            */
+/*==============================================================*/
+create index cms_specialfile_special_fk on cms_special_file (
+   f_special_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_special_image                                     */
+/*==============================================================*/
+create table cms_special_image  (
+   f_special_id         number(10)                      not null,
+   f_name               nvarchar2(150),
+   f_image              nvarchar2(255),
+   f_index              number(10)                     default 0 not null,
+   f_text               clob
+);
+
+comment on table cms_special_image is
+'专题图片集表';
+
+comment on column cms_special_image.f_name is
+'图片名称';
+
+comment on column cms_special_image.f_image is
+'图片地址';
+
+comment on column cms_special_image.f_index is
+'图片序号';
+
+comment on column cms_special_image.f_text is
+'图片正文';
+
+/*==============================================================*/
+/* Index: cms_specialimage_special_fk                           */
+/*==============================================================*/
+create index cms_specialimage_special_fk on cms_special_image (
+   f_special_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_tag                                               */
+/*==============================================================*/
+create table cms_tag  (
+   f_tag_id             number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(50)                   not null,
+   f_creation_date      date                            not null,
+   f_refers             number(10)                     default 0 not null,
+   constraint pk_cms_tag primary key (f_tag_id)
+);
+
+comment on table cms_tag is
+'TAG表';
+
+comment on column cms_tag.f_name is
+'名称';
+
+comment on column cms_tag.f_creation_date is
+'创建日期';
+
+comment on column cms_tag.f_refers is
+'文档数量';
+
+/*==============================================================*/
+/* Index: cms_tag_site_fk                                       */
+/*==============================================================*/
+create index cms_tag_site_fk on cms_tag (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_task                                              */
+/*==============================================================*/
+create table cms_task  (
+   f_task_id            number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(150)                  not null,
+   f_description        clob,
+   f_begin_time         date                            not null,
+   f_end_time           date,
+   f_total              number(10)                     default 0 not null,
+   f_type               number(10)                     default 1 not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_task primary key (f_task_id)
+);
+
+comment on table cms_task is
+'任务表';
+
+comment on column cms_task.f_name is
+'名称';
+
+comment on column cms_task.f_description is
+'描述';
+
+comment on column cms_task.f_begin_time is
+'开始时间';
+
+comment on column cms_task.f_end_time is
+'结束时间';
+
+comment on column cms_task.f_total is
+'总完成数量';
+
+comment on column cms_task.f_type is
+'类型(1:栏目HTML生成,2:文档HTML生成,3:全文索引生成)';
+
+comment on column cms_task.f_status is
+'状态(0:运行中,1:完成,2:中止,3:停止)';
+
+/*==============================================================*/
+/* Index: cms_task_site_fk                                      */
+/*==============================================================*/
+create index cms_task_site_fk on cms_task (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_task_user_fk                                      */
+/*==============================================================*/
+create index cms_task_user_fk on cms_task (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_user                                              */
+/*==============================================================*/
+create table cms_user  (
+   f_user_id            number(10)                      not null,
+   f_org_id             number(10)                      not null,
+   f_membergroup_id     number(10)                      not null,
+   f_username           nvarchar2(50)                   not null,
+   f_password           nvarchar2(128),
+   f_salt               nvarchar2(32),
+   f_email              nvarchar2(100),
+   f_mobile             nvarchar2(100),
+   f_real_name          nvarchar2(100),
+   f_gender             nchar(1),
+   f_birth_date         date,
+   f_validation_type    nvarchar2(50),
+   f_validation_key     nvarchar2(100),
+   f_rank               number(10)                     default 999 not null,
+   f_type               number(10)                     default 0 not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_user primary key (f_user_id),
+   constraint ak_username_cms_user unique (f_username)
+);
+
+comment on table cms_user is
+'用户表';
+
+comment on column cms_user.f_username is
+'用户名';
+
+comment on column cms_user.f_password is
+'密码';
+
+comment on column cms_user.f_salt is
+'加密混淆码';
+
+comment on column cms_user.f_email is
+'电子邮箱';
+
+comment on column cms_user.f_mobile is
+'手机';
+
+comment on column cms_user.f_real_name is
+'用户实名';
+
+comment on column cms_user.f_gender is
+'性别';
+
+comment on column cms_user.f_birth_date is
+'出生年月';
+
+comment on column cms_user.f_validation_type is
+'验证类型(用户激活,重置密码,邮箱激活)';
+
+comment on column cms_user.f_validation_key is
+'验证KEY';
+
+comment on column cms_user.f_rank is
+'等级';
+
+comment on column cms_user.f_type is
+'类型(0:会员,1:管理员)';
+
+comment on column cms_user.f_status is
+'状态(0:正常,1:锁定,2:待验证)';
+
+/*==============================================================*/
+/* Index: cms_user_org_fk                                       */
+/*==============================================================*/
+create index cms_user_org_fk on cms_user (
+   f_org_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_user_membergroup_fk                               */
+/*==============================================================*/
+create index cms_user_membergroup_fk on cms_user (
+   f_membergroup_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_user_detail                                       */
+/*==============================================================*/
+create table cms_user_detail  (
+   f_user_id            number(10)                      not null,
+   f_validation_date    date,
+   f_validation_value   nvarchar2(255),
+   f_login_error_date   date,
+   f_login_error_count  number(10)                     default 0 not null,
+   f_prev_login_date    date,
+   f_prev_login_ip      nvarchar2(100),
+   f_last_login_date    date,
+   f_last_login_ip      nvarchar2(100),
+   f_creation_date      date                            not null,
+   f_creation_ip        nvarchar2(100)                  not null,
+   f_logins             number(10)                     default 0 not null,
+   f_avatar             nvarchar2(255),
+   f_bio                nvarchar2(255),
+   f_come_from          nvarchar2(100),
+   f_qq                 nvarchar2(100),
+   f_msn                nvarchar2(100),
+   f_weixin             nvarchar2(100)
+);
+
+comment on table cms_user_detail is
+'用户详细信息表';
+
+comment on column cms_user_detail.f_validation_date is
+'验证生成时间';
+
+comment on column cms_user_detail.f_validation_value is
+'验证值';
+
+comment on column cms_user_detail.f_login_error_date is
+'登录错误时间';
+
+comment on column cms_user_detail.f_login_error_count is
+'登录错误次数';
+
+comment on column cms_user_detail.f_prev_login_date is
+'上次登录日期';
+
+comment on column cms_user_detail.f_prev_login_ip is
+'上次登录IP';
+
+comment on column cms_user_detail.f_last_login_date is
+'最后登录日期';
+
+comment on column cms_user_detail.f_last_login_ip is
+'最后登录IP';
+
+comment on column cms_user_detail.f_creation_date is
+'加入日期';
+
+comment on column cms_user_detail.f_creation_ip is
+'加入IP';
+
+comment on column cms_user_detail.f_logins is
+'登录次数';
+
+comment on column cms_user_detail.f_avatar is
+'头像';
+
+comment on column cms_user_detail.f_bio is
+'自我介绍';
+
+comment on column cms_user_detail.f_come_from is
+'来自';
+
+comment on column cms_user_detail.f_qq is
+'QQ';
+
+comment on column cms_user_detail.f_msn is
+'MSN';
+
+comment on column cms_user_detail.f_weixin is
+'微信';
+
+/*==============================================================*/
+/* Index: cms_userdetail_user_fk                                */
+/*==============================================================*/
+create index cms_userdetail_user_fk on cms_user_detail (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_user_membergroup                                  */
+/*==============================================================*/
+create table cms_user_membergroup  (
+   f_usermgroup_id      number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_membergroup_id     number(10)                      not null,
+   f_group_index        number(10)                     default 0 not null,
+   constraint pk_cms_user_membergroup primary key (f_usermgroup_id)
+);
+
+comment on table cms_user_membergroup is
+'用户与会员组关联表';
+
+comment on column cms_user_membergroup.f_group_index is
+'会员组排列顺序';
+
+/*==============================================================*/
+/* Index: cms_usermgroup_user_fk                                */
+/*==============================================================*/
+create index cms_usermgroup_user_fk on cms_user_membergroup (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_usermgroup_mgroup_fk                              */
+/*==============================================================*/
+create index cms_usermgroup_mgroup_fk on cms_user_membergroup (
+   f_membergroup_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_user_org                                          */
+/*==============================================================*/
+create table cms_user_org  (
+   f_userorg_id         number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_org_id             number(10)                      not null,
+   f_org_index          number(10)                     default 0 not null,
+   constraint pk_cms_user_org primary key (f_userorg_id)
+);
+
+comment on table cms_user_org is
+'用户与组织关联表';
+
+comment on column cms_user_org.f_org_index is
+'组织顺序';
+
+/*==============================================================*/
+/* Index: cms_userorg_user_fk                                   */
+/*==============================================================*/
+create index cms_userorg_user_fk on cms_user_org (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_userorg_org_fk                                    */
+/*==============================================================*/
+create index cms_userorg_org_fk on cms_user_org (
+   f_org_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_user_role                                         */
+/*==============================================================*/
+create table cms_user_role  (
+   f_userrole_id        number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_role_id            number(10)                      not null,
+   f_role_index         number(10)                     default 0,
+   constraint pk_cms_user_role primary key (f_userrole_id)
+);
+
+comment on table cms_user_role is
+'用户与角色关联表';
+
+comment on column cms_user_role.f_role_index is
+'角色顺序';
+
+/*==============================================================*/
+/* Index: cms_userrole_role_fk                                  */
+/*==============================================================*/
+create index cms_userrole_role_fk on cms_user_role (
+   f_role_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_userrole_user_fk                                  */
+/*==============================================================*/
+create index cms_userrole_user_fk on cms_user_role (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_visit_log                                         */
+/*==============================================================*/
+create table cms_visit_log  (
+   f_visitlog_id        number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_url                nvarchar2(255)                  not null,
+   f_referrer           nvarchar2(255),
+   f_ip                 nvarchar2(100),
+   f_ip_date            nvarchar2(100),
+   f_cookie             nvarchar2(100),
+   f_cookie_date        nvarchar2(100),
+   f_date               nchar(10)                       not null,
+   f_time               date                            not null,
+   constraint pk_cms_visit_log primary key (f_visitlog_id)
+);
+
+comment on table cms_visit_log is
+'访问日志表';
+
+comment on column cms_visit_log.f_url is
+'页面URL';
+
+comment on column cms_visit_log.f_referrer is
+'来源URL';
+
+comment on column cms_visit_log.f_ip is
+'IP地址';
+
+comment on column cms_visit_log.f_ip_date is
+'IP地址+日期';
+
+comment on column cms_visit_log.f_cookie is
+'COOKIE值';
+
+comment on column cms_visit_log.f_cookie_date is
+'COOKIE值+日期';
+
+comment on column cms_visit_log.f_date is
+'日期（字符串格式）';
+
+comment on column cms_visit_log.f_time is
+'访问时间';
+
+/*==============================================================*/
+/* Index: cms_visitlog_site_fk                                  */
+/*==============================================================*/
+create index cms_visitlog_site_fk on cms_visit_log (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_vote                                              */
+/*==============================================================*/
+create table cms_vote  (
+   f_vote_id            number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_title              nvarchar2(150)                  not null,
+   f_number             nvarchar2(100),
+   f_description        nvarchar2(255),
+   f_begin_date         date,
+   f_end_date           date,
+   f_interval           number(10)                     default 0 not null,
+   f_max_selected       number(10)                     default 1 not null,
+   f_mode               number(10)                     default 1 not null,
+   f_total              number(10)                     default 0 not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   f_status             number(10)                     default 0 not null,
+   constraint pk_cms_vote primary key (f_vote_id)
+);
+
+comment on table cms_vote is
+'投票表';
+
+comment on column cms_vote.f_title is
+'标题';
+
+comment on column cms_vote.f_number is
+'编码';
+
+comment on column cms_vote.f_description is
+'描述';
+
+comment on column cms_vote.f_begin_date is
+'开始日期';
+
+comment on column cms_vote.f_end_date is
+'结束日期';
+
+comment on column cms_vote.f_interval is
+'间隔时间（天）';
+
+comment on column cms_vote.f_max_selected is
+'最多可选几项(0不限制)';
+
+comment on column cms_vote.f_mode is
+'模式(1:独立访客,2:独立IP,3:独立用户)';
+
+comment on column cms_vote.f_total is
+'总票数';
+
+comment on column cms_vote.f_seq is
+'排序';
+
+comment on column cms_vote.f_status is
+'状态(0:启用,1:禁用)';
+
+/*==============================================================*/
+/* Index: cms_vote_site_fk                                      */
+/*==============================================================*/
+create index cms_vote_site_fk on cms_vote (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_vote_mark                                         */
+/*==============================================================*/
+create table cms_vote_mark  (
+   f_votemark_id        number(10)                      not null,
+   f_ftype              nvarchar2(50)                   not null,
+   f_fid                number(10)                      not null,
+   f_date               date                            not null,
+   f_user_id            number(10),
+   f_ip                 nvarchar2(100)                  not null,
+   f_cookie             nvarchar2(100)                  not null,
+   constraint pk_cms_vote_mark primary key (f_votemark_id)
+);
+
+comment on table cms_vote_mark is
+'投票标记表';
+
+comment on column cms_vote_mark.f_ftype is
+'外表标识';
+
+comment on column cms_vote_mark.f_fid is
+'外表ID';
+
+comment on column cms_vote_mark.f_date is
+'日期';
+
+comment on column cms_vote_mark.f_user_id is
+'用户';
+
+comment on column cms_vote_mark.f_ip is
+'IP';
+
+comment on column cms_vote_mark.f_cookie is
+'Cookie';
+
+/*==============================================================*/
+/* Table: cms_vote_option                                       */
+/*==============================================================*/
+create table cms_vote_option  (
+   f_voteoption_id      number(10)                      not null,
+   f_vote_id            number(10)                      not null,
+   f_title              nvarchar2(150)                  not null,
+   f_count              number(10)                     default 0 not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_vote_option primary key (f_voteoption_id)
+);
+
+comment on table cms_vote_option is
+'投票项表';
+
+comment on column cms_vote_option.f_title is
+'标题';
+
+comment on column cms_vote_option.f_count is
+'得票数';
+
+comment on column cms_vote_option.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_voteoption_vote_fk                                */
+/*==============================================================*/
+create index cms_voteoption_vote_fk on cms_vote_option (
+   f_vote_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_workflow                                          */
+/*==============================================================*/
+create table cms_workflow  (
+   f_workflow_id        number(10)                      not null,
+   f_workflowgroup_id   number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_description        nvarchar2(255),
+   f_seq                number(10)                     default 2147483647 not null,
+   f_status             number(10)                     default 1 not null,
+   constraint pk_cms_workflow primary key (f_workflow_id)
+);
+
+comment on table cms_workflow is
+'工作流表';
+
+comment on column cms_workflow.f_name is
+'名称';
+
+comment on column cms_workflow.f_description is
+'描述';
+
+comment on column cms_workflow.f_seq is
+'排序';
+
+comment on column cms_workflow.f_status is
+'状态(1:启用;2:禁用)';
+
+/*==============================================================*/
+/* Index: cms_workflow_site_fk                                  */
+/*==============================================================*/
+create index cms_workflow_site_fk on cms_workflow (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_workflow_workflowgroup_fk                         */
+/*==============================================================*/
+create index cms_workflow_workflowgroup_fk on cms_workflow (
+   f_workflowgroup_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_workflow_group                                    */
+/*==============================================================*/
+create table cms_workflow_group  (
+   f_workflowgroup_id   number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_description        nvarchar2(255),
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_workflow_group primary key (f_workflowgroup_id)
+);
+
+comment on table cms_workflow_group is
+'工作流组表';
+
+comment on column cms_workflow_group.f_name is
+'名称';
+
+comment on column cms_workflow_group.f_description is
+'描述';
+
+comment on column cms_workflow_group.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_workflowgroup_site_fk                             */
+/*==============================================================*/
+create index cms_workflowgroup_site_fk on cms_workflow_group (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_workflow_log                                      */
+/*==============================================================*/
+create table cms_workflow_log  (
+   f_workflowlog_id     number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_workflowprocess_id number(10)                      not null,
+   f_from               nvarchar2(100)                  not null,
+   f_to                 nvarchar2(100)                  not null,
+   f_creation_date      date                            not null,
+   f_opinion            nvarchar2(255),
+   f_type               number(10)                      not null,
+   constraint pk_cms_workflow_log primary key (f_workflowlog_id)
+);
+
+comment on table cms_workflow_log is
+'工作流流程日志表';
+
+comment on column cms_workflow_log.f_from is
+'从哪';
+
+comment on column cms_workflow_log.f_to is
+'到哪';
+
+comment on column cms_workflow_log.f_creation_date is
+'创建时间';
+
+comment on column cms_workflow_log.f_opinion is
+'意见';
+
+comment on column cms_workflow_log.f_type is
+'类型(1:前进;2后退:;3:原地)';
+
+/*==============================================================*/
+/* Index: cms_workflowlog_wfprocess_fk                          */
+/*==============================================================*/
+create index cms_workflowlog_wfprocess_fk on cms_workflow_log (
+   f_workflowprocess_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_workflowlog_user_fk                               */
+/*==============================================================*/
+create index cms_workflowlog_user_fk on cms_workflow_log (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_workflowlog_site_fk                               */
+/*==============================================================*/
+create index cms_workflowlog_site_fk on cms_workflow_log (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_workflow_process                                  */
+/*==============================================================*/
+create table cms_workflow_process  (
+   f_workflowprocess_id number(10)                      not null,
+   f_workflowstep_id    number(10),
+   f_site_id            number(10)                      not null,
+   f_workflow_id        number(10)                      not null,
+   f_user_id            number(10)                      not null,
+   f_data_id            number(10)                      not null,
+   f_data_type          number(10)                      not null,
+   f_begin_date         date                            not null,
+   f_end_date           date,
+   f_is_rejection       nchar(1)                       default '0' not null,
+   f_is_end             nchar(1)                       default '0' not null,
+   constraint pk_cms_workflow_process primary key (f_workflowprocess_id)
+);
+
+comment on table cms_workflow_process is
+'工作流流程表';
+
+comment on column cms_workflow_process.f_data_id is
+'数据ID';
+
+comment on column cms_workflow_process.f_data_type is
+'数据类型(1:文档)';
+
+comment on column cms_workflow_process.f_begin_date is
+'开始时间';
+
+comment on column cms_workflow_process.f_end_date is
+'结束时间';
+
+comment on column cms_workflow_process.f_is_rejection is
+'是否退回';
+
+comment on column cms_workflow_process.f_is_end is
+'是否结束';
+
+/*==============================================================*/
+/* Index: cms_workflowproc_workflow_fk                          */
+/*==============================================================*/
+create index cms_workflowproc_workflow_fk on cms_workflow_process (
+   f_workflow_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_workflowproc_user_fk                              */
+/*==============================================================*/
+create index cms_workflowproc_user_fk on cms_workflow_process (
+   f_user_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_workflowproc_site_fk                              */
+/*==============================================================*/
+create index cms_workflowproc_site_fk on cms_workflow_process (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Index: cms_wfprocess_wfstep_fk                               */
+/*==============================================================*/
+create index cms_wfprocess_wfstep_fk on cms_workflow_process (
+   f_workflowstep_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_workflow_step                                     */
+/*==============================================================*/
+create table cms_workflow_step  (
+   f_workflowstep_id    number(10)                      not null,
+   f_workflow_id        number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_seq                number(10)                     default 2147483647 not null,
+   constraint pk_cms_workflow_step primary key (f_workflowstep_id)
+);
+
+comment on table cms_workflow_step is
+'工作流步骤表';
+
+comment on column cms_workflow_step.f_name is
+'名称';
+
+comment on column cms_workflow_step.f_seq is
+'排序';
+
+/*==============================================================*/
+/* Index: cms_workflowstep_workflow_fk                          */
+/*==============================================================*/
+create index cms_workflowstep_workflow_fk on cms_workflow_step (
+   f_workflow_id asc
+);
+
+/*==============================================================*/
+/* Table: cms_workflowstep_role                                 */
+/*==============================================================*/
+create table cms_workflowstep_role  (
+   f_wfsteprole_id      number(10)                      not null,
+   f_role_id            number(10)                      not null,
+   f_workflowstep_id    number(10)                      not null,
+   f_role_index         number(10)                     default 0 not null,
+   constraint pk_cms_workflowstep_role primary key (f_wfsteprole_id)
+);
+
+comment on table cms_workflowstep_role is
+'审核步骤与角色关联表';
+
+comment on column cms_workflowstep_role.f_role_index is
+'角色排列顺序';
+
+/*==============================================================*/
+/* Table: plug_resume                                           */
+/*==============================================================*/
+create table plug_resume  (
+   f_resume_id          number(10)                      not null,
+   f_site_id            number(10)                      not null,
+   f_name               nvarchar2(100)                  not null,
+   f_post               nvarchar2(100)                  not null,
+   f_creation_date      date                            not null,
+   f_gender             nchar(1)                       default 'M' not null,
+   f_birth_date         date,
+   f_mobile             nvarchar2(100),
+   f_email              nvarchar2(100),
+   f_expected_salary    number(10),
+   f_education_experience clob,
+   f_work_experience    clob,
+   f_remark             clob,
+   constraint pk_plug_resume primary key (f_resume_id)
+);
+
+comment on table plug_resume is
+'简历表';
+
+comment on column plug_resume.f_name is
+'姓名';
+
+comment on column plug_resume.f_post is
+'应聘职位';
+
+comment on column plug_resume.f_creation_date is
+'投递日期';
+
+comment on column plug_resume.f_gender is
+'性别';
+
+comment on column plug_resume.f_birth_date is
+'出生日期';
+
+comment on column plug_resume.f_mobile is
+'手机';
+
+comment on column plug_resume.f_email is
+'邮箱';
+
+comment on column plug_resume.f_expected_salary is
+'期望薪水';
+
+comment on column plug_resume.f_education_experience is
+'教育经历';
+
+comment on column plug_resume.f_work_experience is
+'工作经历';
+
+comment on column plug_resume.f_remark is
+'备注';
+
+/*==============================================================*/
+/* Index: plug_resume_site_fk                                   */
+/*==============================================================*/
+create index plug_resume_site_fk on plug_resume (
+   f_site_id asc
+);
+
+/*==============================================================*/
+/* Table: t_id_table                                            */
+/*==============================================================*/
+create table t_id_table  (
+   f_table              nvarchar2(100)                  not null,
+   f_id_value           number(20)                      not null,
+   constraint pk_t_id_table primary key (f_table)
+);
+
+comment on table t_id_table is
+'主键表';
+
+comment on column t_id_table.f_table is
+'表名';
+
+comment on column t_id_table.f_id_value is
+'ID值';
+
+alter table cms_ad
+   add constraint fk_cms_ad_adslot foreign key (f_adslot_id)
+      references cms_ad_slot (f_adslot_id);
+
+alter table cms_ad
+   add constraint fk_cms_ad_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_ad_slot
+   add constraint fk_cms_adslot_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_attachment
+   add constraint fk_cms_attachement_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_attachment
+   add constraint fk_cms_attachment_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_attachment_ref
+   add constraint fk_cms_attachmentref_attach foreign key (f_attachment_id)
+      references cms_attachment (f_attachment_id);
+
+alter table cms_attachment_ref
+   add constraint fk_cms_attachmentref_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_attribute
+   add constraint fk_cms_attribute_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_collect
+   add constraint fk_cms_collect_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_collect
+   add constraint fk_cms_collect_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_collect
+   add constraint fk_cms_collect_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_collect_field
+   add constraint fk_cms_collectfield_collect foreign key (f_collect_id)
+      references cms_collect (f_collect_id);
+
+alter table cms_collect_field
+   add constraint fk_cms_collectfield_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_collect_log
+   add constraint fk_cms_collectlog_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_comment
+   add constraint fk_cms_comment_auditor foreign key (f_auditor_id)
+      references cms_user (f_user_id);
+
+alter table cms_comment
+   add constraint fk_cms_comment_creator foreign key (f_creator_id)
+      references cms_user (f_user_id);
+
+alter table cms_comment
+   add constraint fk_cms_comment_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_friendlink
+   add constraint fk_cms_friendlink_fltype foreign key (f_friendlinktype_id)
+      references cms_friendlink_type (f_friendlinktype_id);
+
+alter table cms_friendlink
+   add constraint fk_cms_friendlink_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_friendlink_type
+   add constraint fk_cms_friendlinktype_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_global_clob
+   add constraint fk_cms_globalclob_global foreign key (f_global_id)
+      references cms_global (f_global_id);
+
+alter table cms_global_custom
+   add constraint fk_cms_globalcustom_global foreign key (f_global_id)
+      references cms_global (f_global_id);
+
+alter table cms_guestbook
+   add constraint fk_cms_guestbook_creator foreign key (f_creator_id)
+      references cms_user (f_user_id);
+
+alter table cms_guestbook
+   add constraint fk_cms_guestbook_guestbooktype foreign key (f_guestbooktype_id)
+      references cms_guestbook_type (f_guestbooktype_id);
+
+alter table cms_guestbook
+   add constraint fk_cms_guestbook_replyer foreign key (f_replyer_id)
+      references cms_user (f_user_id);
+
+alter table cms_guestbook
+   add constraint fk_cms_guestbook_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_guestbook_type
+   add constraint fk_cms_guestbooktype_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_info
+   add constraint fk_cms_info_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_info
+   add constraint fk_cms_info_org foreign key (f_org_id)
+      references cms_org (f_org_id);
+
+alter table cms_info
+   add constraint fk_cms_info_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_info
+   add constraint fk_cms_info_user_creator foreign key (f_creator_id)
+      references cms_user (f_user_id);
+
+alter table cms_info_attribute
+   add constraint fk_cms_infoattr_attribute foreign key (f_attribute_id)
+      references cms_attribute (f_attribute_id);
+
+alter table cms_info_attribute
+   add constraint fk_cms_infoattr_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_buffer
+   add constraint fk_cms_infobuffer_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_clob
+   add constraint fk_cms_infoclob_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_custom
+   add constraint fk_cms_infocustom_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_detail
+   add constraint fk_cms_infodetail_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_file
+   add constraint fk_cms_infofile_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_image
+   add constraint fk_cms_infoimage_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_membergroup
+   add constraint fk_cms_infomgroup_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_membergroup
+   add constraint fk_cms_infomgroup_mgroup foreign key (f_membergroup_id)
+      references cms_member_group (f_membergroup_id);
+
+alter table cms_info_node
+   add constraint fk_cms_infonode_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_node
+   add constraint fk_cms_infonode_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_info_org
+   add constraint fk_cms_infoorg_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_org
+   add constraint fk_cms_infoorg_org foreign key (f_org_id)
+      references cms_org (f_org_id);
+
+alter table cms_info_special
+   add constraint fk_cms_infospec_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_special
+   add constraint fk_cms_infospec_special foreign key (f_special_id)
+      references cms_special (f_special_id);
+
+alter table cms_info_tag
+   add constraint fk_cms_infotag_info foreign key (f_info_id)
+      references cms_info (f_info_id);
+
+alter table cms_info_tag
+   add constraint fk_cms_infotag_tag foreign key (f_tag_id)
+      references cms_tag (f_tag_id);
+
+alter table cms_model
+   add constraint fk_cms_model_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_model_custom
+   add constraint fk_cms_modelcustom_model foreign key (f_model_id)
+      references cms_model (f_model_id);
+
+alter table cms_model_field
+   add constraint fk_cms_modefiel_model foreign key (f_model_id)
+      references cms_model (f_model_id);
+
+alter table cms_model_field_custom
+   add constraint fk_cms_modfiecus_modefiel foreign key (f_modefiel_id)
+      references cms_model_field (f_modefiel_id);
+
+alter table cms_node
+   add constraint fk_cms_node_model_info foreign key (f_info_model_id)
+      references cms_model (f_model_id);
+
+alter table cms_node
+   add constraint fk_cms_node_model_node foreign key (f_node_model_id)
+      references cms_model (f_model_id);
+
+alter table cms_node
+   add constraint fk_cms_node_parent foreign key (f_parent_id)
+      references cms_node (f_node_id);
+
+alter table cms_node
+   add constraint fk_cms_node_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_node
+   add constraint fk_cms_node_user_creator foreign key (f_creator_id)
+      references cms_user (f_user_id);
+
+alter table cms_node
+   add constraint fk_cms_node_workflow foreign key (f_workflow_id)
+      references cms_workflow (f_workflow_id);
+
+alter table cms_node_buffer
+   add constraint fk_cms_nodebuffer_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_node_clob
+   add constraint fk_cms_nodeclob_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_node_custom
+   add constraint fk_cms_nodecustom_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_node_detail
+   add constraint fk_cms_nodedetail_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_node_membergroup
+   add constraint fk_cms_nodemgroup_group foreign key (f_membergroup_id)
+      references cms_member_group (f_membergroup_id);
+
+alter table cms_node_membergroup
+   add constraint fk_cms_nodemgroup_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_node_org
+   add constraint fk_cms_nodeorg_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_node_org
+   add constraint fk_cms_nodeorg_org foreign key (f_org_id)
+      references cms_org (f_org_id);
+
+alter table cms_node_role
+   add constraint fk_cms_noderole_node foreign key (f_node_id)
+      references cms_node (f_node_id);
+
+alter table cms_node_role
+   add constraint fk_cms_noderole_role foreign key (f_role_id)
+      references cms_role (f_role_id);
+
+alter table cms_operation_log
+   add constraint fk_cms_operationlog_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_operation_log
+   add constraint fk_cms_operationlog_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_org
+   add constraint fk_cms_org_parent foreign key (f_parent_id)
+      references cms_org (f_org_id);
+
+alter table cms_publish_point
+   add constraint fk_cms_publishpoint_global foreign key (f_global_id)
+      references cms_global (f_global_id);
+
+alter table cms_qitem_qrecord
+   add constraint fk_cms_qiqr_qoption foreign key (f_questionoption_id)
+      references cms_question_option (f_questionoption_id);
+
+alter table cms_qitem_qrecord
+   add constraint fk_cms_qiqr_qrecord foreign key (f_questionrecord_id)
+      references cms_question_record (f_questionrecord_id);
+
+alter table cms_qoption_qrecord
+   add constraint fk_cms_qoqr_qoption foreign key (f_questionoption_id)
+      references cms_question_option (f_questionoption_id);
+
+alter table cms_qoption_qrecord
+   add constraint fk_cms_qoqr_qrecord foreign key (f_questionrecord_id)
+      references cms_question_record (f_questionrecord_id);
+
+alter table cms_question
+   add constraint fk_cms_question_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_question_item
+   add constraint fk_cms_qitem_question foreign key (f_question_id)
+      references cms_question (f_question_id);
+
+alter table cms_question_option
+   add constraint fk_cms_qoption_qitem foreign key (f_questionitem_id)
+      references cms_question_item (f_questionitem_id);
+
+alter table cms_question_record
+   add constraint fk_cms_qrecord_question foreign key (f_question_id)
+      references cms_question (f_question_id);
+
+alter table cms_question_record
+   add constraint fk_cms_questionrecord_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_role
+   add constraint fk_cms_role_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_schedule_job
+   add constraint fk_cms_schedulejob_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_schedule_job
+   add constraint fk_cms_schedulejob_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_score_board
+   add constraint fk_cms_scoreboard_scoreitem foreign key (f_scoreitem_id)
+      references cms_score_item (f_scoreitem_id);
+
+alter table cms_score_group
+   add constraint fk_cms_scoregroup_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_score_item
+   add constraint fk_cms_scoreitem_scoregroup foreign key (f_scoregroup_id)
+      references cms_score_group (f_scoregroup_id);
+
+alter table cms_score_item
+   add constraint fk_cms_scoreitem_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_site
+   add constraint fk_cms_site_global foreign key (f_global_id)
+      references cms_global (f_global_id);
+
+alter table cms_site
+   add constraint fk_cms_site_org foreign key (f_org_id)
+      references cms_org (f_org_id);
+
+alter table cms_site
+   add constraint fk_cms_site_parent foreign key (f_parent_id)
+      references cms_site (f_site_id);
+
+alter table cms_site
+   add constraint fk_cms_site_publishpint foreign key (f_html_publishpoint_id)
+      references cms_publish_point (f_publishpoint_id);
+
+alter table cms_site_clob
+   add constraint fk_cms_siteclob_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_site_custom
+   add constraint fk_cms_sitecustom_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_special
+   add constraint fk_cms_special_creator foreign key (f_creator_id)
+      references cms_user (f_user_id);
+
+alter table cms_special
+   add constraint fk_cms_special_model foreign key (f_model_id)
+      references cms_model (f_model_id);
+
+alter table cms_special
+   add constraint fk_cms_special_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_special
+   add constraint fk_cms_special_speccate foreign key (f_speccate_id)
+      references cms_special_category (f_speccate_id);
+
+alter table cms_special_category
+   add constraint fk_cms_speccategory_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_special_clob
+   add constraint fk_cms_specialclob_special foreign key (f_special_id)
+      references cms_special (f_special_id);
+
+alter table cms_special_custom
+   add constraint fk_cms_specialcustom_special foreign key (f_special_id)
+      references cms_special (f_special_id);
+
+alter table cms_special_file
+   add constraint fk_cms_specialfile_special foreign key (f_special_id)
+      references cms_special (f_special_id);
+
+alter table cms_special_image
+   add constraint fk_cms_specialimage_special foreign key (f_special_id)
+      references cms_special (f_special_id);
+
+alter table cms_tag
+   add constraint fk_cms_tag_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_task
+   add constraint fk_cms_task_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_task
+   add constraint fk_cms_task_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_user
+   add constraint fk_cms_user_membergroup foreign key (f_membergroup_id)
+      references cms_member_group (f_membergroup_id);
+
+alter table cms_user
+   add constraint fk_cms_user_org foreign key (f_org_id)
+      references cms_org (f_org_id);
+
+alter table cms_user_detail
+   add constraint fk_cms_userdetail_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_user_membergroup
+   add constraint fk_cms_usermgroup_mgroup foreign key (f_membergroup_id)
+      references cms_member_group (f_membergroup_id);
+
+alter table cms_user_membergroup
+   add constraint fk_cms_usermgroup_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_user_org
+   add constraint fk_cms_userorg_org foreign key (f_org_id)
+      references cms_org (f_org_id);
+
+alter table cms_user_org
+   add constraint fk_cms_userorg_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_user_role
+   add constraint fk_cms_userrole_role foreign key (f_role_id)
+      references cms_role (f_role_id);
+
+alter table cms_user_role
+   add constraint fk_cms_userrole_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_visit_log
+   add constraint fk_cms_visitlog_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_vote
+   add constraint fk_cms_vote_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_vote_option
+   add constraint fk_cms_voteoption_vote foreign key (f_vote_id)
+      references cms_vote (f_vote_id);
+
+alter table cms_workflow
+   add constraint fk_cms_workflow_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_workflow
+   add constraint fk_cms_workflow_workflowgroup foreign key (f_workflowgroup_id)
+      references cms_workflow_group (f_workflowgroup_id);
+
+alter table cms_workflow_group
+   add constraint fk_cms_workflowgroup_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_workflow_log
+   add constraint fk_cms_workflowlog_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_workflow_log
+   add constraint fk_cms_workflowlog_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_workflow_log
+   add constraint fk_cms_workflowlog_wfprocess foreign key (f_workflowprocess_id)
+      references cms_workflow_process (f_workflowprocess_id);
+
+alter table cms_workflow_process
+   add constraint fk_cms_wfprocess_wfstep foreign key (f_workflowstep_id)
+      references cms_workflow_step (f_workflowstep_id);
+
+alter table cms_workflow_process
+   add constraint fk_cms_workflowproc_site foreign key (f_site_id)
+      references cms_site (f_site_id);
+
+alter table cms_workflow_process
+   add constraint fk_cms_workflowproc_user foreign key (f_user_id)
+      references cms_user (f_user_id);
+
+alter table cms_workflow_process
+   add constraint fk_cms_workflowproc_workflow foreign key (f_workflow_id)
+      references cms_workflow (f_workflow_id);
+
+alter table cms_workflow_step
+   add constraint fk_cms_workflowstep_workflow foreign key (f_workflow_id)
+      references cms_workflow (f_workflow_id);
+
+alter table cms_workflowstep_role
+   add constraint fk_cms_wfsteprole_role foreign key (f_role_id)
+      references cms_role (f_role_id);
+
+alter table cms_workflowstep_role
+   add constraint fk_cms_wfsteprole_wfstep foreign key (f_workflowstep_id)
+      references cms_workflow_step (f_workflowstep_id);
+
+alter table plug_resume
+   add constraint fk_plug_resume_site foreign key (f_site_id)
+      references cms_site (f_site_id);

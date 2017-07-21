@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="author" content="atarm" />
+<title>搜索</title>
+<script language="javascript" type="text/javascript" src="${fore}/jquery.js" ></script>
+<script language="javascript" type="text/javascript" src="_files/pic_change.js"></script>
+<script language="javascript" type="text/javascript" src="_files/common.js"></script>
+<script type="text/javascript" src="_files/script/cms.all.js" ></script>
+<link href="_files/css/develop.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table width="980" border="0" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+        <td height="17" colspan="5">&nbsp;</td>
+    </tr>
+    <tr>
+        <td width="4" height="61"></td>
+        <td width="325"><img src="_files/image/Develop_03.jpg" width="316" height="43" alt="" /></td>
+        <td width="10"><img src="_files/image/indivjianli_14.jpg" width="1" height="37" /></td>
+        <td width="512" class="name">搜索</td>
+        <td width="129"><a target="_blank" href="/"><img src="_files/image/Develop_09.jpg" alt="" width="110" height="25" border="0" /></a></td>
+    </tr>
+</table>
+<table width="980" border="0" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+        <td width="2"><img src="_files/image/Develop_15.jpg" width="2" height="33" /></td>
+        <td width="976" background="_files/image/Develop_16.jpg"><table width="940" border="0" align="center" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="690"><div class="menu">
+                            <ul>
+                                <li><a target="_blank" href="#">首页</a></li>
+                                <li><a target="_blank" href="#">就业手续</a></li>
+                                <li><a target="_blank" href="#">学历查询</a></li>
+                                <li ><a target="_blank" href="#">海外留学服务</a></li>
+                                <li><a target="_blank" href="#">政策文件</a></li>
+                                <li><a target="_blank" href="#">进度查询</a></li>
+                                <li><a target="_blank" href="#">关于我们</a></li>
+                            </ul>
+                        </div></td>
+                    <td width="200"><form action="${ctx}/search.jspx" method="post" id="sch_form" style="padding: 0px 0px 0px 0px;margin: 0px 0px 0px 0px;"><input name="q" id="q" type="text" class="developtextfield" value="${Param.q!}"/></form></td>
+                    <td width="50"><a onclick="$('#sch_form').submit();" href="#"><img src="_files/image/Develop_26.jpg" alt="" width="25" height="25" border="0" /></a></td>
+                </tr>
+            </table></td>
+        <td width="2"><img src="_files/image/Develop_19.jpg" width="2" height="33" /></td>
+    </tr>
+</table>
+<table width="980" border="0" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+        <td  height="3"></td>
+    </tr>
+    <tr>
+        <td><img src="_files/image/sectorlist_03.jpg" width="980" height="164" /></td>
+    </tr>
+    <tr>
+        <td height="8"></td>
+    </tr>
+</table>
+<table width="980" border="0" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+        <td width="696" valign="top">
+			<table width="696" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="2"><img src="_files/image/sectorlist_06.jpg" width="2" height="30" /></td>
+					<td width="699" class="kflist1titlebg">
+					当前位置：<a href="/">首页</a>&nbsp;&gt;&gt;&nbsp;<a href="#">搜索结果</a></td>
+					<td width="2"><img src="_files/image/sectorlist_09.jpg" /></td>
+				</tr>
+			</table>
+			<div class="kflist1contactbg">
+				[@InfoFulltextPage q=Param.q pageSize=20;pagedList]
+				<span style="font-size:14px; color:#1d7abd">
+       			找到相关文章&nbsp;&nbsp;<strong>${pagedList.totalElements}</strong>&nbsp;&nbsp;篇</span>
+					<table width="636" border="0" cellspacing="0" cellpadding="0" id="jiangese">
+					[#list pagedList.content as info]				
+					<tr>
+						<td width="506" class="kflist1left"><a target="_blank" target="_blank" href="${info.url}">·${substring(info.title,20,'...')}</a></td>
+						<td width="130" align="right" class="kflist1right">${info.publishDate?string('yyyy-MM-dd')}&nbsp;</td>
+					</tr>
+					[/#list]
+					</table>
+					<div class="sapce"></div>
+				<table border="0" align="right" cellpadding="0" cellspacing="0">
+                <tr>
+				<td><div class="flickr">
+				<a [#if page>1] href="${paging(1)}"[/#if] class="page">首页</a>
+				[#if page>1]
+				<a href="${paging(page-1)}" class="page">上一页</a>
+				[/#if]
+				[#assign start=page-2/][#if start<1][#assign start=1/][/#if]
+				[#assign end=start+4/][#if end>pagedList.totalPages][#assign end=pagedList.totalPages/][/#if][#if end<1][#assign end=1/][/#if]
+				[#if end-start<4][#assign start=end-4/][/#if][#if start<1][#assign start=1/][/#if]
+				[#if start >1]...[/#if]
+				[#list start..end as p]
+				[#if page!=p]<a href="${paging(p)}">${p}</a>[#else]<span class="current">${p}</span>[/#if]
+				[/#list]
+				[#if end < pagedList.totalPages ]...[/#if]
+				[#if page < pagedList.totalPages]
+				<a href="${paging(page+1)}" class="page">下一页</a>
+				[/#if]
+				<a [#if page<pagedList.totalPages] href="${paging(pagedList.totalPages)}"[/#if] class="page" >尾页</a></div></td>
+				</tr>
+            	</table>	
+				[/@InfoFulltextPage]
+				<br />
+			</div>
+		</td>
+        <td width="8"></td>
+        <td width="276" valign="top">
+		[@InfoList nodeNumber='latestnews' limit=6;list]
+        	<table width="276" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="119" class="title1">最新动态</td>
+                    <td width="156" align="right" background="_files/image/Develop_36.jpg"><a target="_blank" href="${ctx}/latestnews/index.html"><span style="font-size:12px;color:#ff6600;padding: 1px 5px 1px 5px;word-spacing:5px;font-family:'微软雅黑'">更多&gt;&gt;</span>&nbsp;</a></td>
+                    <td width="1"><img src="_files/image/Develop_38.jpg" width="1" height="33" /></td>
+                </tr>
+            </table>
+
+			<div class="kflist1border">
+			[#list list as info]			
+				<div class="kfnewstext"><a target="_blank" href="${info.url}">${substring(info.title,17,'...')}</a></div>			
+			[/#list]
+			</div>			
+		[/@InfoList]
+			<div class="sapce"></div>
+			[@InfoList nodeNumber='boutique' limit=1;list]
+			[#list list as info]
+			<div class="imgborder"><a target="_blank" href="${info.url}"><img src="${info.smallImageUrl}"  width='274' height='97'/></a></div>
+			[/#list]  
+			[/@InfoList]
+			<div class="sapce"></div>
+			[@InfoList nodeNumber='hrclass_hrinterview' limit=1;list]
+			[#list list as info]
+			<div class="imgborder"><a target="_blank" href="${info.url}"><img src="${info.smallImageUrl}"  width='274' height='97'/></a></div>
+			[/#list]  
+			[/@InfoList]
+		</td>
+    </tr>
+</table>
+[#include "sxrc/sector-end.html"/]
+</body>
+<script type="text/javascript">
+$(function(){
+	document.getElementById("q").placeholder='全站搜索'; 
+	jiangese_set('jiangese',1,'#FFFFFF','#F4F4F4');
+  })
+</script>
+</html>

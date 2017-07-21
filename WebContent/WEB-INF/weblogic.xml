@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<weblogic-web-app xmlns="http://www.bea.com/ns/weblogic/weblogic-web-app" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bea.com/ns/weblogic/weblogic-web-app http://www.bea.com/ns/weblogic/weblogic-web-app/1.0/weblogic-web-app.xsd">  
+<container-descriptor>
+    <!-- 优先加载项目classes -->
+    <!--  
+    <prefer-web-inf-classes>true</prefer-web-inf-classes>
+    --> 
+    <!-- weblogic 下ServletContext.getRealPath()为空时的解决办法 -->
+    <show-archived-real-path-enabled>true</show-archived-real-path-enabled>
+    
+    <!-- 防止javax/persistence相关异常 -->
+    <prefer-application-packages>  
+        <package-name>antlr.*</package-name>  
+        <package-name>org.hibernate.*</package-name>  
+        <package-name>javax.persistence.*</package-name>  
+    </prefer-application-packages>
+    
+</container-descriptor>
+<!-- 如果不带项目名, context-root配置为/-->
+<context-root>zynljscms</context-root>
+
+</weblogic-web-app>

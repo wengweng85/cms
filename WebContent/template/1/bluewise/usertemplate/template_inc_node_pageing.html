@@ -1,0 +1,11 @@
+<div class="universal_overview_turnpage turnpage">
+共有${pagedList.totalPages}页，本页是第 ${page} 页&nbsp; 
+[#if page>1] 
+    <a href="${paging(1)}">首页&nbsp;</a> 
+	<a href="${paging(page-1)}">上一页&nbsp;</a>
+[#else] 首页&nbsp;上一页&nbsp; [/#if] 
+[#if page < pagedList.totalPages] 
+    <a href="${paging(page+1)}">下一页&nbsp;</a> 
+	<a href="${paging(pagedList.totalPages)}">尾页</a> [#else] 下一页&nbsp;尾页
+[/#if]
+</div>
